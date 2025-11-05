@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Manage Loan Products{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'view_all_loans' %}">Loans</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Loan Products</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <a href="{% url 'create_loan_product' %}" class="btn btn-primary">
+        <i class='bx bx-plus'></i> Create Product
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Interest Rate</th>
+                        <th>Min Amount</th>
+                        <th>Max Amount</th>
+                        <th>Min Duration</th>
+                        <th>Max Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.interest_rate }}%</td>
+                        <td>{{ product.min_amount|ugx }}</td>
+                        <td>{{ product.max_amount|ugx }}</td>
+                        <td>{{ product.min_duration_months }} months</td>
+                        <td>{{ product.max_duration_months }} months</td>
+                        <td>
+                            <span class="badge bg-{% if product.is_active %}success{% else %}danger{% endif %}">
+                                {% if product.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_loan_product' product.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class='bx bx-edit'></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No loan products found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+

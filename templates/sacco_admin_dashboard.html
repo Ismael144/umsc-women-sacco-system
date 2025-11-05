@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Sacco Admin Dashboard{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Sacco Admin Dashboard</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Key Performance Indicators -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-left-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-primary">Total Members</h6>
+                        <h3 class="mb-0">{{ total_members }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class='bx bx-group text-primary' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-left-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-success">Total Savings</h6>
+                        <h3 class="mb-0">{{ total_savings_balance|ugx }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class='bx bx-wallet text-success' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-left-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-info">Loans Disbursed</h6>
+                        <h3 class="mb-0">{{ loans_disbursed_amount|ugx }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class='bx bx-credit-card text-info' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-left-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-warning">Funds Received</h6>
+                        <h3 class="mb-0">{{ funds_received_amount|ugx }}</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class='bx bx-money text-warning' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-user-plus'></i> Recent Members
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_members %}
+                    {% for member in recent_members %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                                {{ member.first_name|first }}{{ member.last_name|first }}
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">{{ member.full_name }}</h6>
+                            <small class="text-muted">{{ member.member_number }} • {{ member.date_joined|date:"M d, Y" }}</small>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-success">{{ member.status|title }}</span>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<hr>{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No recent members found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-credit-card'></i> Recent Loans
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_loans %}
+                    {% for loan in recent_loans %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm bg-info text-white rounded-circle d-flex align-items-center justify-content-center">
+                                <i class='bx bx-credit-card'></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">{{ loan.member.full_name }}</h6>
+                            <small class="text-muted">{{ loan.amount_requested|ugx }} • {{ loan.application_date|date:"M d, Y" }}</small>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-{{ loan.status|lower }}">{{ loan.status|title }}</span>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<hr>{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No recent loans found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics: Expenses Over Time & Gender Distribution -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class='bx bx-line-chart'></i> Expenses Over Time</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="expensesChart" height="140"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class='bx bx-pie-chart'></i> Membership by Gender</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="genderChart" height="140"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Last Added Savings (Recent Deposits) -->
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header">
+            <h6 class="mb-0"><i class='bx bx-wallet'></i> Last Added Savings (Recent Deposits)</h6>
+        </div>
+        <div class="card-body">
+            {% if recent_savings_deposits %}
+            <div class="table-responsive">
+                <table class="table table-hover data-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Member</th>
+                            <th>Account</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Reference</th>
+                            <th>Narration</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in recent_savings_deposits %}
+                        <tr>
+                            <td>{{ txn.account.member.full_name }}</td>
+                            <td><code>{{ txn.account.account_number }}</code></td>
+                            <td><span class="badge bg-secondary">{{ txn.txn_type }}</span></td>
+                            <td><strong>{{ txn.amount|ugx }}</strong></td>
+                            <td>{{ txn.reference|default:'—' }}</td>
+                            <td><small>{{ txn.narration|default:'—' }}</small></td>
+                            <td><small>{{ txn.performed_at|date:"M d, Y H:i" }}</small></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center mb-0">No recent deposit transactions</p>
+            {% endif %}
+        </div>
+    </div>
+    </div>
+
+<!-- Quick Actions (Bottom) -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class='bx bx-bolt'></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <a href="{% url 'register_member' %}" class="btn btn-outline-primary w-100">
+                            <i class='bx bx-user-plus me-1'></i> Register Member
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <a href="{% url 'create_savings_account' %}" class="btn btn-outline-info w-100">
+                            <i class='bx bx-wallet me-1'></i> Create Account
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <a href="{% url 'add_savings_transaction' %}" class="btn btn-outline-success w-100">
+                            <i class='bx bx-download me-1'></i> Deposit
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <a href="{% url 'add_savings_transaction' %}" class="btn btn-outline-secondary w-100">
+                            <i class='bx bx-upload me-1'></i> Withdraw
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <a href="{% url 'add_loan' %}" class="btn btn-outline-warning w-100">
+                            <i class='bx bx-credit-card me-1'></i> Disburse Loan
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <a href="{% url 'add_expense' %}" class="btn btn-outline-danger w-100">
+                            <i class='bx bx-receipt me-1'></i> Add Expense
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <a href="{% url 'reports_index' %}" class="btn btn-outline-dark w-100">
+                            <i class='bx bx-bar-chart-alt-2 me-1'></i> View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Expenses Over Time Chart
+const expensesCtx = document.getElementById('expensesChart')?.getContext('2d');
+if (expensesCtx) {
+    const expLabels = [
+        {% for m in expenses_over_time %}
+            '{{ m.expense_date__year }}-{{ m.expense_date__month|stringformat:"02d" }}'{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    const expData = [
+        {% for m in expenses_over_time %}
+            {{ m.total }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    new Chart(expensesCtx, {
+        type: 'bar',
+        data: { labels: expLabels, datasets: [{ label: 'Expenses', data: expData, backgroundColor: 'rgba(74,124,89,0.2)', borderColor: 'rgba(74,124,89,1)', borderWidth: 2, borderRadius: 6, }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+}
+
+// Gender Distribution Chart
+const genderCtx = document.getElementById('genderChart')?.getContext('2d');
+if (genderCtx) {
+    const genders = ['Male','Female','Other'];
+    const genderCounts = genders.map(g => ({
+        'Male': {{ gender_counts.Male|default:0 }},
+        'Female': {{ gender_counts.Female|default:0 }},
+        'Other': {{ gender_counts.Other|default:0 }}
+    })[g]);
+    new Chart(genderCtx, {
+        type: 'doughnut',
+        data: { labels: genders, datasets: [{ data: genderCounts, backgroundColor: ['#0d6efd','#e83e8c','#6c757d'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+}
+</script>
+{% endblock %}

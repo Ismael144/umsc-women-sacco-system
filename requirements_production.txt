@@ -1,0 +1,58 @@
+# Production Requirements for Sacco Management System
+
+# Core Django
+Django==4.2.7
+django-crispy-forms==2.1
+crispy-bootstrap5==0.7
+
+# Database
+psycopg2-binary==2.9.7
+
+# Image Processing
+Pillow==10.1.0
+
+# Environment Variables
+python-decouple==3.8
+
+# Static Files
+whitenoise==6.6.0
+
+# Production Server
+gunicorn==21.2.0
+
+# Database Extensions
+django-extensions==3.2.3
+
+# Caching
+redis==4.6.0
+django-redis==5.4.0
+
+# Background Tasks
+celery==5.3.4
+
+# Monitoring
+django-debug-toolbar==4.2.0
+
+# Security
+django-cors-headers==4.3.1
+django-ratelimit==4.1.0
+
+# File Storage (for cloud storage)
+boto3==1.28.85
+django-storages==1.14.2
+
+# Additional Production Tools
+django-cleanup==8.2.0
+django-compressor==4.4
+django-htmlmin==0.11.0
+
+
+
+
+
+
+
+
+
+
+

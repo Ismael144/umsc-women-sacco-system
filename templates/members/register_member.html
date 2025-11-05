@@ -1,0 +1,652 @@
+{% extends 'base.html' %}
+
+{% block page_title %}UMSC Women Sacco Registration Form{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'member_list' %}">Members</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Register Member</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Fix double scrollbar issue - remove vertical scrollbar from registration form */
+    #main-content {
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        max-height: none !important;
+        height: auto !important;
+    }
+    body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+    html {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+    .container-fluid {
+        overflow: visible !important;
+        max-height: none !important;
+        height: auto !important;
+    }
+    /* Remove any inline overflow styles that might cause scrollbars */
+    form {
+        overflow: visible !important;
+        max-height: none !important;
+    }
+    .row {
+        overflow: visible !important;
+    }
+    /* Ensure no nested containers have overflow causing scrollbars */
+    .container-fluid > *,
+    .container-fluid > .row > * {
+        overflow: visible !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if accessible_saccos and accessible_saccos|length > 1 %}
+    <div class="card mb-4 border-primary">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <label for="sacco-selector" class="form-label mb-0 fw-bold">
+                        <i class='bx bx-building text-primary'></i> Select Sacco for Member Registration:
+                    </label>
+                    {% if selected_sacco %}
+                    <div class="mt-2">
+                        <span class="badge bg-primary">
+                            <i class='bx bx-check-circle'></i> Selected: {{ selected_sacco.name }}
+                            {% if selected_sacco.district %}
+                            <small>({{ selected_sacco.district.name }})</small>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <select class="form-select form-select-lg" id="sacco-selector" name="sacco" onchange="filterBySacco(this.value)">
+                        <option value="">Select Sacco</option>
+                        {% for sacco in accessible_saccos %}
+                        <option value="{{ sacco.id }}" {% if selected_sacco_id and selected_sacco_id|stringformat:"s" == sacco.id|stringformat:"s" %}selected{% endif %}>
+                            {{ sacco.name }} {% if sacco.district %}({{ sacco.district.name }}){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    function filterBySacco(saccoId) {
+        const url = new URL(window.location.href);
+        if (saccoId) {
+            url.searchParams.set('sacco', saccoId);
+        } else {
+            url.searchParams.delete('sacco');
+        }
+        window.location.href = url.toString();
+    }
+    
+    // Ensure selected sacco is properly set on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const saccoParam = urlParams.get('sacco');
+        const selectElement = document.getElementById('sacco-selector');
+        if (saccoParam && selectElement) {
+            selectElement.value = saccoParam;
+        }
+    });
+    </script>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-12">
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <!-- Display form errors at top -->
+                {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <h5 class="alert-heading"><i class='bx bx-error'></i> Please correct the following errors:</h5>
+                    <ul class="mb-0">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+                
+                {% if accessible_saccos and accessible_saccos|length > 1 %}
+                <input type="hidden" name="sacco" value="{{ selected_sacco_id }}">
+                {% elif accessible_saccos and accessible_saccos|length == 1 %}
+                <input type="hidden" name="sacco" value="{{ accessible_saccos.0.id }}">
+                {% endif %}
+                
+                <!-- SECTION A: PERSONAL INFORMATION -->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3">
+                        <h6 class="mb-0">SECTION A: PERSONAL INFORMATION</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">1. Full Name (as per National ID){% if form.full_name.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.full_name }}
+                            {% if form.full_name.errors %}<div class="invalid-feedback d-block">{% for e in form.full_name.errors %}{{ e }}{% endfor %}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">2. National Identification Number (NIN){% if form.national_id.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.national_id }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">3. Date of Birth{% if form.date_of_birth.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.date_of_birth }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label d-block">4. Marital Status{% if form.marital_status.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.marital_status }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">5. Contact Number{% if form.phone.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">6. Email Address (if any)</label>
+                            {{ form.email }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">7. Physical Address / Village{% if form.home_address.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.home_address }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">8. District / Region{% if form.district.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.district }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">9. Occupation / Source of Income</label>
+                            {{ form.occupation }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">10. Next of Kin Name{% if form.next_of_kin_name.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.next_of_kin_name }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">11. Relationship to Next of Kin{% if form.relationship.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.relationship }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">12. Next of Kin Contact{% if form.next_of_kin_phone.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.next_of_kin_phone }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION B: SACCO MEMBERSHIP INFORMATION -->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3">
+                        <h6 class="mb-0">SECTION B: SACCO MEMBERSHIP INFORMATION</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">1. Membership Type{% if form.membership_type.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.membership_type }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">2. Membership Category{% if form.membership_category.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.membership_category }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">3. Date of Joining{% if form.date_joined.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.date_joined }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">4. Referred By (if any)</label>
+                            {{ form.referred_by }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">5. Initial Savings Deposit (UGX){% if form.initial_savings_deposit.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.initial_savings_deposit }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">6. Monthly Contribution Commitment (UGX){% if form.monthly_contribution_commitment.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.monthly_contribution_commitment }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">7. Preferred Payment Method{% if form.preferred_payment_method.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.preferred_payment_method }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Employment Information Section -->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3">
+                        <h6 class="mb-0">
+                            <i class='bx bx-briefcase'></i> Additional Employment Information
+                        </h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.employer_name.id_for_label }}" class="form-label">Employer Name</label>
+                            {{ form.employer_name }}
+                            {% if form.employer_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.employer_name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.monthly_income.id_for_label }}" class="form-label">Monthly Income</label>
+                            {{ form.monthly_income }}
+                            {% if form.monthly_income.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.monthly_income.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.business_registration_status.id_for_label }}" class="form-label">Business Registration Status</label>
+                            {{ form.business_registration_status }}
+                            {% if form.business_registration_status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.business_registration_status.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.autonomy_score.id_for_label }}" class="form-label">Autonomy Score (0-10)</label>
+                            {{ form.autonomy_score }}
+                            {% if form.autonomy_score.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.autonomy_score.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">Member Status</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.status.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.shares_balance.id_for_label }}" class="form-label">Initial Shares Balance</label>
+                            {{ form.shares_balance }}
+                            {% if form.shares_balance.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.shares_balance.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.savings_balance.id_for_label }}" class="form-label">Initial Savings Balance</label>
+                            {{ form.savings_balance }}
+                            {% if form.savings_balance.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.savings_balance.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">Additional Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- SECTION C: DECLARATION BY APPLICANT -->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3">
+                        <h6 class="mb-0">SECTION C: DECLARATION BY APPLICANT</h6>
+                    </div>
+                    <p class="small text-muted">I hereby apply for membership in the UMSC Women SACCO. I declare that the information provided above is true and correct to the best of my knowledge. I agree to abide by the SACCO’s Constitution, By-laws, and all regulations governing members.</p>
+                </div>
+
+                <!-- SECTION D: FOR OFFICIAL USE ONLY -->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3">
+                        <h6 class="mb-0">SECTION D: FOR OFFICIAL USE ONLY</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Membership Number</label>
+                            <input type="text" class="form-control" value="Will be auto-generated" disabled>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Application Received By</label>
+                            <input type="text" class="form-control" value="{{ request.user.get_full_name|default:request.user.username }}" disabled>
+                            <small class="form-text text-muted">System will record the logged-in user</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Designation / Office{% if form.application_received_designation.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.application_received_designation }}
+                            {% if form.application_received_designation.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.application_received_designation.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date{% if form.application_received_at.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                            {{ form.application_received_at }}
+                            {% if form.application_received_at.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.application_received_at.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Approved By (SACCO Committee)</label>
+                            {{ form.approved_by_committee }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Remarks</label>
+                            {{ form.approval_remarks }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Approval Date</label>
+                            {{ form.approval_date }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION E: ATTACHMENTS CHECKLIST -->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3">
+                        <h6 class="mb-0">SECTION E: ATTACHMENTS CHECKLIST</h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Copy of National ID</label>
+                            {{ form.attachment_id_copy }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Passport-size Photograph (1)</label>
+                            {{ form.attachment_passport_photo }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Proof of Initial Savings Deposit</label>
+                            {{ form.attachment_proof_initial_deposit }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Recommendation from Local Muslim Leader / Women Chairperson</label>
+                            {{ form.attachment_recommendation_letter }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Profile Information -->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3">
+                        <h6 class="mb-0">
+                            <i class='bx bx-briefcase'></i> Business & Empowerment Information
+                        </h6>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.business_type.id_for_label }}" class="form-label">Business Type</label>
+                            {{ form.business_type }}
+                            {% if form.business_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.business_type.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.business_location.id_for_label }}" class="form-label">Business Location</label>
+                            {{ form.business_location }}
+                            {% if form.business_location.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.business_location.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.years_in_business.id_for_label }}" class="form-label">Years in Business</label>
+                            {{ form.years_in_business }}
+                            {% if form.years_in_business.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.years_in_business.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.monthly_business_income.id_for_label }}" class="form-label">Monthly Business Income</label>
+                            {{ form.monthly_business_income }}
+                            {% if form.monthly_business_income.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.monthly_business_income.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.family_size.id_for_label }}" class="form-label">Family Size</label>
+                            {{ form.family_size }}
+                            {% if form.family_size.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.family_size.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.education_level.id_for_label }}" class="form-label">Education Level</label>
+                            {{ form.education_level }}
+                            {% if form.education_level.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.education_level.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Note: Login credentials are generated automatically after submission. -->
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'member_list' %}" class="btn btn-outline-secondary">
+                            <i class='bx bx-arrow-back'></i> Back to Members
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class='bx bx-save'></i> Register Member
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom styling to match the design */
+.form-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    border-bottom: 2px solid #4a7c59;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.section-header h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.section-header i {
+    color: #4a7c59;
+    margin-right: 8px;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: #4a7c59;
+    box-shadow: 0 0 0 0.2rem rgba(74, 124, 89, 0.25);
+}
+
+.text-success {
+    color: #4a7c59 !important;
+}
+
+.btn-primary {
+    background-color: #4a7c59;
+    border-color: #4a7c59;
+}
+
+.btn-primary:hover {
+    background-color: #3a6b4a;
+    border-color: #3a6b4a;
+}
+
+.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.form-text {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Page header styling */
+.bg-dark {
+    background-color: #2c3e50 !important;
+}
+
+/* Input group button styling */
+.input-group .btn {
+    border-left: 0;
+}
+
+.input-group .btn:hover {
+    background-color: #f8f9fa;
+    color: #4a7c59;
+}
+</style>
+
+<script>
+// Form validation with dynamic messages
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    // Add dynamic validation messages
+                    var invalidFields = form.querySelectorAll(':invalid');
+                    invalidFields.forEach(function(field) {
+                        var feedback = field.parentNode.querySelector('.invalid-feedback');
+                        if (feedback) {
+                            var label = field.parentNode.querySelector('label').textContent.replace('*', '').trim();
+                            
+                            if (field.validity.valueMissing) {
+                                feedback.textContent = 'Please provide a valid ' + label.toLowerCase() + '.';
+                            } else if (field.validity.typeMismatch) {
+                                feedback.textContent = 'Please enter a valid ' + label.toLowerCase() + '.';
+                            } else {
+                                feedback.textContent = 'Please provide a valid ' + label.toLowerCase() + '.';
+                            }
+                        }
+                    });
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Password generation
+document.addEventListener('DOMContentLoaded', function() {
+    const generatePasswordBtn = document.getElementById('generatePassword');
+    const passwordField = document.getElementById('login_password');
+    
+    if (generatePasswordBtn && passwordField) {
+        generatePasswordBtn.addEventListener('click', function() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let password = '';
+            for (let i = 0; i < 6; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            passwordField.value = password;
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Notifications{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Notifications</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-end gap-2">
+                <button class="btn btn-success" onclick="markAllAsRead()">
+                    <i class='bx bx-check-all me-1'></i> Mark All Read
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class='bx bx-filter me-1'></i> Filter
+                    </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="?read=all">
+                                <i class='bx bx-list-ul me-2'></i>All Notifications
+                            </a></li>
+                            <li><a class="dropdown-item" href="?read=false">
+                                <i class='bx bx-envelope me-2'></i>Unread Only
+                            </a></li>
+                            <li><a class="dropdown-item" href="?read=true">
+                                <i class='bx bx-check me-2'></i>Read Only
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class='bx bx-bell fs-1'></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-0">{{ page_obj.paginator.count }}</h4>
+                            <small>Total Notifications</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class='bx bx-envelope fs-1'></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-0">{{ unread_count }}</h4>
+                            <small>Unread</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class='bx bx-check fs-1'></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-0">{{ page_obj.paginator.count|add:"-"|add:unread_count }}</h4>
+                            <small>Read</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class='bx bx-time fs-1'></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-0">Today</h4>
+                            <small>Recent Activity</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    {% if page_obj %}
+                        <div class="list-group list-group-flush">
+                            {% for notification in page_obj %}
+                            <div class="list-group-item notification-item {% if not notification.is_read %}unread{% endif %}" 
+                                 data-notification-id="{{ notification.id }}">
+                                <div class="d-flex align-items-start">
+                                    <div class="notification-icon {{ notification.action_type|default:'default' }}">
+                                        <i class="bx {% if notification.action_type == 'loan_approval' %}bx-check-circle
+                                                      {% elif notification.action_type == 'loan_rejection' %}bx-x-circle
+                                                      {% elif notification.action_type == 'loan_disbursement' %}bx-money
+                                                      {% elif notification.action_type == 'savings_deposit' %}bx-plus-circle
+                                                      {% elif notification.action_type == 'savings_withdrawal' %}bx-minus-circle
+                                                      {% elif notification.action_type == 'member_registration' %}bx-user-plus
+                                                      {% elif notification.action_type == 'payment_reminder' %}bx-bell
+                                                      {% elif notification.action_type == 'loan_overdue' %}bx-alarm
+                                                      {% elif notification.action_type == 'password_reset' %}bx-key
+                                                      {% elif notification.action_type == 'system_alert' %}bx-info-circle
+                                                      {% else %}bx-bell{% endif %}"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="notification-title mb-1 {% if not notification.is_read %}fw-bold{% endif %}">
+                                                    {{ notification.title }}
+                                                </h6>
+                                                <p class="notification-message mb-2">{{ notification.message }}</p>
+                                                <div class="notification-meta">
+                                                    <span class="notification-time">
+                                                        <i class='bx bx-time me-1'></i>{{ notification.sent_at|timesince }} ago
+                                                    </span>
+                                                    <span class="notification-priority priority-{{ notification.priority|lower|default:'medium' }}">
+                                                        {{ notification.priority|default:'Medium' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-1">
+                                                {% if not notification.is_read %}
+                                                <button class="btn btn-sm btn-outline-primary" 
+                                                        onclick="markAsRead('{{ notification.id }}')"
+                                                        title="Mark as read">
+                                                    <i class='bx bx-check'></i>
+                                                </button>
+                                                {% endif %}
+                                                <a href="{% url 'delete_notification' notification.id %}" 
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   onclick="return confirm('Are you sure you want to delete this notification?')"
+                                                   title="Delete">
+                                                    <i class='bx bx-trash'></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% if notification.action_url %}
+                                        <div class="mt-2">
+                                            <a href="{{ notification.action_url }}" class="btn btn-sm btn-primary">
+                                                <i class='bx bx-link-external'></i> View Details
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                        <div class="card-footer">
+                            <nav aria-label="Notifications pagination">
+                                <ul class="pagination pagination-sm justify-content-center mb-0">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1{% if request.GET.read %}&read={{ request.GET.read }}{% endif %}">First</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.read %}&read={{ request.GET.read }}{% endif %}">Previous</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}{% if request.GET.read %}&read={{ request.GET.read }}{% endif %}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.read %}&read={{ request.GET.read }}{% endif %}">Next</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.read %}&read={{ request.GET.read }}{% endif %}">Last</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class='bx bx-bell-off text-muted' style="font-size: 4rem;"></i>
+                            <h5 class="text-muted mt-3">No notifications found</h5>
+                            <p class="text-muted">You don't have any notifications at the moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Notification List Styles */
+.notification-item {
+    padding: 20px;
+    border-bottom: 1px solid #f1f3f4;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.notification-item.unread {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+    border-left: 4px solid #4a7c59;
+}
+
+.notification-item.unread:hover {
+    background: linear-gradient(135deg, #e1f5fe 0%, #f0f8ff 100%);
+}
+
+.notification-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.notification-icon.loan_approval {
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    color: white;
+}
+
+.notification-icon.loan_rejection {
+    background: linear-gradient(135deg, #f44336, #ef5350);
+    color: white;
+}
+
+.notification-icon.loan_disbursement {
+    background: linear-gradient(135deg, #2196f3, #42a5f5);
+    color: white;
+}
+
+.notification-icon.savings_deposit {
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    color: white;
+}
+
+.notification-icon.savings_withdrawal {
+    background: linear-gradient(135deg, #ff9800, #ffb74d);
+    color: white;
+}
+
+.notification-icon.member_registration {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8);
+    color: white;
+}
+
+.notification-icon.payment_reminder {
+    background: linear-gradient(135deg, #ff9800, #ffb74d);
+    color: white;
+}
+
+.notification-icon.loan_overdue {
+    background: linear-gradient(135deg, #f44336, #ef5350);
+    color: white;
+}
+
+.notification-icon.system_alert {
+    background: linear-gradient(135deg, #607d8b, #90a4ae);
+    color: white;
+}
+
+.notification-icon.default {
+    background: linear-gradient(135deg, #4a7c59, #5a8c69);
+    color: white;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.notification-message {
+    color: #666;
+    font-size: 0.95em;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85em;
+    color: #888;
+}
+
+.notification-time {
+    font-weight: 500;
+}
+
+.notification-priority {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-high {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.priority-critical {
+    background: #fce4ec;
+    color: #ad1457;
+}
+
+.priority-medium {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.priority-low {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+/* Pagination Styles */
+.pagination .page-link {
+    color: #4a7c59;
+    border-color: #dee2e6;
+    border-radius: 8px;
+    margin: 0 2px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #4a7c59;
+    border-color: #4a7c59;
+}
+
+.pagination .page-link:hover {
+    color: #3a6b49;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+/* Stats Cards */
+.card.bg-primary, .card.bg-warning, .card.bg-success, .card.bg-info {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.card.bg-primary:hover, .card.bg-warning:hover, .card.bg-success:hover, .card.bg-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+</style>
+
+<script>
+function markAsRead(notificationId) {
+    fetch(`/notifications/mark-as-read/${notificationId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the notification item
+            const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationItem) {
+                notificationItem.classList.remove('unread');
+                
+                // Remove the mark as read button
+                const markAsReadBtn = notificationItem.querySelector('button[onclick*="markAsRead"]');
+                if (markAsReadBtn) {
+                    markAsReadBtn.remove();
+                }
+                
+                // Update title styling
+                const title = notificationItem.querySelector('.notification-title');
+                if (title) {
+                    title.classList.remove('fw-bold');
+                }
+            }
+            
+            // Update counts
+            updateCounts();
+        }
+    })
+    .catch(error => console.error('Error marking notification as read:', error));
+}
+
+function markAllAsRead() {
+    fetch('/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show updated state
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error marking all notifications as read:', error));
+}
+
+function updateCounts() {
+    // Update unread count in stats cards
+    const unreadItems = document.querySelectorAll('.notification-item.unread');
+    const unreadCount = unreadItems.length;
+    
+    // Update the unread count in the stats card
+    const unreadCountElement = document.querySelector('.card.bg-warning h4');
+    if (unreadCountElement) {
+        unreadCountElement.textContent = unreadCount;
+    }
+    
+    // Update the read count
+    const totalItems = document.querySelectorAll('.notification-item').length;
+    const readCount = totalItems - unreadCount;
+    const readCountElement = document.querySelector('.card.bg-success h4');
+    if (readCountElement) {
+        readCountElement.textContent = readCount;
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Update counts on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateCounts();
+});
+</script>
+{% endblock %}

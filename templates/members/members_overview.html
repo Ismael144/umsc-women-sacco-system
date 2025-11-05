@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Members Overview{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'member_list' %}">Members</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Members Overview</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Members</h6>
+                    <h3 class="mb-0">{{ total_all_members }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Active Members</h6>
+                    <h3 class="mb-0">{{ total_active_members }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sacco Summaries Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class='bx bx-group'></i> Members Summary by Sacco</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sacco Name</th>
+                            <th>District</th>
+                            <th>Total Members</th>
+                            <th>Active Members</th>
+                            <th>Inactive Members</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for summary in sacco_summaries %}
+                        <tr>
+                            <td><strong>{{ summary.sacco.name }}</strong></td>
+                            <td>{{ summary.sacco.district.name|default:"N/A" }}</td>
+                            <td>{{ summary.total_members }}</td>
+                            <td><span class="badge bg-success">{{ summary.active_members }}</span></td>
+                            <td><span class="badge bg-danger">{{ summary.inactive_members }}</span></td>
+                            <td>
+                                <a href="{% url 'member_list' %}?sacco={{ summary.sacco.id }}" class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-show'></i> View Members
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No members data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

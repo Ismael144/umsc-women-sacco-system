@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Manage KPIs{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports_index' %}">Reports</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports_performance_kras' %}">Manage KRAs</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Manage KPIs</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header + Actions -->
+    <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h4 class="mb-0">KPIs for: {{ kra.title }}</h4>
+                <div class="text-muted small">{{ kra.description|default:'No description' }}</div>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                {% if accessible_saccos %}
+                <div class="d-flex align-items-center gap-2">
+                    <label for="sacco-select" class="form-label mb-0"><strong>Select Sacco:</strong></label>
+                    <select id="sacco-select" class="form-select" style="min-width: 250px;" onchange="window.location.href='{% url 'reports_performance_kpis' kra.id %}?sacco=' + this.value">
+                        {% for s in accessible_saccos %}
+                        <option value="{{ s.id }}" {% if s.id == sacco.id %}selected{% endif %}>
+                            {{ s.name }} - {{ s.region.name|default:"No Region" }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div class="d-flex gap-2">
+                    <a href="{% url 'reports_performance_kras' %}{% if accessible_saccos %}?sacco={{ sacco.id }}{% endif %}" class="btn btn-outline-secondary"><i class='bx bx-arrow-back'></i> Back to KRAs</a>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kpiModal" onclick="openCreateKPI()"><i class='bx bx-plus'></i> New KPI</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3"><div class="card border-left-primary"><div class="card-body"><h6 class="text-primary">Total KPIs</h6><h3 class="mb-0">{{ kpis|length }}</h3></div></div></div>
+        <div class="col-md-4 mb-3"><div class="card border-left-success"><div class="card-body"><h6 class="text-success">Active KPIs</h6><h3 class="mb-0">{{ kpis|dictsort:'is_active'|last|length }}</h3></div></div></div>
+        <div class="col-md-4 mb-3"><div class="card border-left-warning"><div class="card-body"><h6 class="text-warning">Total Weight</h6><h3 class="mb-0" id="totalWeight">—</h3><small class="text-muted">Recommended total per KRA: 100</small></div></div></div>
+    </div>
+
+    <!-- KPI table with search -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">KPI List</h6>
+            <input type="search" class="form-control w-auto" placeholder="Search KPIs" oninput="filterKPIs(this.value)">
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="kpiTable">
+                    <thead class="table-light"><tr><th>Name</th><th>Unit</th><th>Target</th><th>Weight</th><th>Direction</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                    <tbody>
+                        {% for k in kpis %}
+                        <tr>
+                            <td class="kpi-name">{{ k.name }}</td>
+                            <td>{{ k.get_unit_display }}</td>
+                            <td class="kpi-target">{{ k.target_value }}</td>
+                            <td class="kpi-weight">{{ k.weight }}</td>
+                            <td>{{ k.get_direction_display }}</td>
+                            <td>{% if k.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="openEditKPI('{{ k.id }}','{{ k.name|escapejs }}','{{ k.description|escapejs }}','{{ k.unit }}','{{ k.target_value }}','{{ k.weight }}','{{ k.direction }}','{{ k.is_active }}')">Edit</button>
+                                    <form method="post" style="display:inline">{% csrf_token %}
+                                        <input type="hidden" name="kpi_id" value="{{ k.id }}">
+        								<input type="hidden" name="action" value="toggle">
+                                        <button class="btn btn-outline-warning" type="submit">{% if k.is_active %}Deactivate{% else %}Activate{% endif %}</button>
+                                    </form>
+                                    <form method="post" style="display:inline" onsubmit="return confirm('Delete this KPI?')">{% csrf_token %}
+                                        <input type="hidden" name="kpi_id" value="{{ k.id }}">
+                                        <input type="hidden" name="action" value="delete">
+                                        <button class="btn btn-outline-danger" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center text-muted">No KPIs yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit KPI Modal -->
+<div class="modal fade" id="kpiModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="kpiModalTitle">New KPI</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" id="kpiForm">{% csrf_token %}
+        <input type="hidden" name="kpi_id" id="kpi_id">
+        <input type="hidden" name="action" id="kpi_action" value="create_or_update">
+        <div class="modal-body">
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">Name</label>
+                    {{ form.name }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Unit</label>
+                    {{ form.unit }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">Description</label>
+                    {{ form.description }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Direction</label>
+                    {{ form.direction }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Target</label>
+                    {{ form.target_value }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Weight</label>
+                    {{ form.weight }}
+                    <div class="form-text">0–100</div>
+                </div>
+            </div>
+            <div class="form-check mb-2">
+                <label class="form-check-label">Active {{ form.is_active }}</label>
+            </div>
+            <div class="alert alert-info" id="weightInfo" role="alert">
+                Total KPI weight (including this): <strong id="totalWeightLive">—</strong>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Compute total KPI weight in table
+function computeTotalWeight() {
+    let total = 0;
+    document.querySelectorAll('#kpiTable .kpi-weight').forEach(td => {
+        const v = parseFloat(td.textContent.trim());
+        if (!isNaN(v)) total += v;
+    });
+    const el = document.getElementById('totalWeight');
+    if (el) el.textContent = total.toFixed(2);
+    return total;
+}
+computeTotalWeight();
+
+function updateWeightInfo(editDelta) {
+    const base = computeTotalWeight();
+    const live = document.getElementById('totalWeightLive');
+    if (live) live.textContent = (base + editDelta).toFixed(2);
+}
+
+function filterKPIs(q) {
+    q = (q || '').toLowerCase();
+    document.querySelectorAll('#kpiTable tbody tr').forEach(tr => {
+        const name = tr.querySelector('.kpi-name')?.textContent.toLowerCase() || '';
+        tr.style.display = name.includes(q) ? '' : 'none';
+    });
+}
+
+function openCreateKPI() {
+    document.getElementById('kpiModalTitle').textContent = 'New KPI';
+    document.getElementById('kpi_id').value = '';
+    const form = document.getElementById('kpiForm');
+    form.reset();
+    updateWeightInfo(0);
+}
+
+function openEditKPI(id, name, description, unit, target, weight, direction, is_active) {
+    document.getElementById('kpiModalTitle').textContent = 'Edit KPI';
+    document.getElementById('kpi_id').value = id;
+    const form = document.getElementById('kpiForm');
+    form.querySelector('#id_name').value = name;
+    form.querySelector('#id_description').value = description;
+    form.querySelector('#id_unit').value = unit;
+    form.querySelector('#id_target_value').value = target;
+    form.querySelector('#id_weight').value = weight;
+    form.querySelector('#id_direction').value = direction;
+    form.querySelector('#id_is_active').checked = (is_active === 'True');
+    updateWeightInfo(parseFloat(weight || '0') || 0);
+    const modal = new bootstrap.Modal(document.getElementById('kpiModal'));
+    modal.show();
+}
+
+document.addEventListener('input', function(e){
+    if (e.target && e.target.id === 'id_weight') {
+        const v = parseFloat(e.target.value || '0');
+        updateWeightInfo(isNaN(v) ? 0 : v);
+    }
+});
+</script>
+{% endblock %}
+

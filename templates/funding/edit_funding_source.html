@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Edit Funding Source{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'funding_list' %}">Funding Management</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'funding_sources' %}">Funding Sources</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Funding Source</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <a href="{% url 'funding_sources' %}" class="btn btn-outline-secondary">Back</a>
+    
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Name *</label>
+                <input type="text" class="form-control" name="name" value="{{ source.name }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Contact Person</label>
+                <input type="text" class="form-control" name="contact_person" value="{{ source.contact_person }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" value="{{ source.email }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <input type="tel" class="form-control phone-mask" name="phone" value="{{ source.phone }}"
+                       placeholder="+256 XXX XXX XXX or 0XXX XXX XXX">
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'funding_sources' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class='bx bx-save'></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+
+

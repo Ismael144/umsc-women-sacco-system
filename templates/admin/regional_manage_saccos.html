@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Manage Regional Saccos{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'regional_admin_dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Manage Saccos</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Saccos List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="card-title">Saccos in {{ region.name }}</h4>
+                        <a href="{% url 'create_sacco' %}" class="btn btn-primary">
+                            <i class="bx bx-plus me-2"></i>Create New Sacco
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Registration Number</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Created By</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sacco in saccos %}
+                                <tr>
+                                    <td>{{ sacco.name }}</td>
+                                    <td>{{ sacco.registration_number }}</td>
+                                    <td>{{ sacco.phone }}</td>
+                                    <td>{{ sacco.email }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if sacco.is_active %}success{% else %}danger{% endif %}">
+                                            {% if sacco.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ sacco.created_by.username|default:"System" }}</td>
+                                    <td>{{ sacco.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <form method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="toggle_status">
+                                            <input type="hidden" name="sacco_id" value="{{ sacco.id }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-{% if sacco.is_active %}warning{% else %}success{% endif %}">
+                                                <i class="bx bx-{% if sacco.is_active %}pause{% else %}play{% endif %}"></i>
+                                                {% if sacco.is_active %}Deactivate{% else %}Activate{% endif %}
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No Saccos found in this region</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if saccos.has_other_pages %}
+                    <nav aria-label="Saccos pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if saccos.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ saccos.previous_page_number }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in saccos.paginator.page_range %}
+                            {% if saccos.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > saccos.number|add:'-3' and num < saccos.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                            
+                            {% if saccos.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ saccos.next_page_number }}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+

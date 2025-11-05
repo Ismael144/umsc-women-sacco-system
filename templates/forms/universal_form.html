@@ -1,0 +1,113 @@
+{% load static %}
+
+<!-- Universal Form Template -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class='{{ form_icon|default:"bx bx-edit" }}'></i> {{ form_title }}
+                </h4>
+                <p class="text-muted mb-0">{{ form_subtitle|default:"Please fill in the required information" }}</p>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Form Sections -->
+                    {% for section in form_sections %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class='{{ section.icon|default:"bx bx-info-circle" }}'></i> {{ section.title }}
+                            </h5>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        {% for field in section.fields %}
+                        <div class="{{ field.column_class|default:'col-md-6' }} mb-3">
+                            <label for="{{ field.name }}" class="form-label">
+                                {{ field.label }} 
+                                {% if field.required %}<span class="text-success">*</span>{% endif %}
+                            </label>
+                            
+                            {% if field.type == 'textarea' %}
+                                <textarea class="form-control" id="{{ field.name }}" name="{{ field.name }}" 
+                                    rows="{{ field.rows|default:3 }}" {% if field.required %}required{% endif %}
+                                    placeholder="{{ field.placeholder|default:'' }}">{{ field.value|default:'' }}</textarea>
+                            {% elif field.type == 'select' %}
+                                <select class="form-select" id="{{ field.name }}" name="{{ field.name }}" {% if field.required %}required{% endif %}>
+                                    <option value="">Select {{ field.label }}</option>
+                                    {% for option in field.options %}
+                                        <option value="{{ option.value }}" {% if option.selected %}selected{% endif %}>
+                                            {{ option.text }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <input type="{{ field.type|default:'text' }}" class="form-control" id="{{ field.name }}" 
+                                    name="{{ field.name }}" {% if field.required %}required{% endif %}
+                                    placeholder="{{ field.placeholder|default:'Enter '|add:field.label|lower }}" value="{{ field.value|default:'' }}">
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            
+                            <div class="invalid-feedback">
+                                Please provide a valid {{ field.label|lower }}.
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if not forloop.last %}<hr class="my-4">{% endif %}
+                    {% endfor %}
+                    
+                    <!-- Form Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ back_url|default:'#' }}" class="btn btn-outline-secondary">
+                                    <i class='bx bx-arrow-back'></i> {{ back_text|default:"Back" }}
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class='{{ submit_icon|default:"bx bx-save" }}'></i> {{ submit_text|default:"Save" }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Universal Form Validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>

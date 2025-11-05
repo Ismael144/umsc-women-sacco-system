@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to UMSC Sacco</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #008f4d, #006633);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .welcome-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .member-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .info-value {
+            color: #6c757d;
+        }
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #008f4d, #006633);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        .action-button:hover {
+            background: linear-gradient(135deg, #006633, #004d26);
+            transform: translateY(-2px);
+        }
+        .benefits {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .benefits h3 {
+            color: #155724;
+            margin: 0 0 15px 0;
+        }
+        .benefits ul {
+            color: #155724;
+            margin: 0;
+            padding-left: 20px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .welcome-message {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .welcome-message h3 {
+            color: #0c5460;
+            margin: 0 0 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="welcome-icon">👋</div>
+            <h1>Welcome to UMSC Sacco!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px;">Your journey to financial empowerment begins here</p>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-message">
+                <h3>🎉 Welcome to the UMSC Family!</h3>
+                <p style="margin: 0; color: #0c5460; font-weight: 500;">
+                    We're thrilled to have you join our community of empowered women and men working towards financial independence.
+                </p>
+            </div>
+            
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">Your Account Information</h3>
+            
+            <div class="member-info">
+                <div class="info-row">
+                    <span class="info-label">Member Number:</span>
+                    <span class="info-value">{{ notification.related_object.member_number|default:"N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Full Name:</span>
+                    <span class="info-value">{{ notification.related_object.full_name|default:"N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Date Joined:</span>
+                    <span class="info-value">{{ notification.related_object.date_joined|date:"F d, Y"|default:"N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value" style="color: #28a745; font-weight: 600;">ACTIVE</span>
+                </div>
+            </div>
+            
+            <div class="benefits">
+                <h3>🌟 What You Can Do Now</h3>
+                <ul>
+                    <li><strong>Savings Accounts:</strong> Open various savings products tailored to your needs</li>
+                    <li><strong>Loan Services:</strong> Access affordable credit for personal and business needs</li>
+                    <li><strong>Group Savings:</strong> Join savings circles and lending groups</li>
+                    <li><strong>Financial Training:</strong> Access financial literacy programs</li>
+                    <li><strong>Emergency Loans:</strong> Quick access to emergency funds when needed</li>
+                    <li><strong>Mobile Banking:</strong> Manage your account through our mobile platform</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                <h4 style="color: #856404; margin: 0 0 10px 0;">Getting Started:</h4>
+                <ol style="color: #856404; margin: 0; padding-left: 20px;">
+                    <li>Log in to your account using the credentials provided</li>
+                    <li>Complete your profile information</li>
+                    <li>Visit our office to verify your identity</li>
+                    <li>Start your first savings account</li>
+                    <li>Explore our loan products and services</li>
+                </ol>
+            </div>
+            
+            {% if notification.action_url %}
+            <div style="text-align: center;">
+                <a href="{{ notification.action_url }}" class="action-button">
+                    Access Your Account
+                </a>
+            </div>
+            {% endif %}
+            
+            <p style="color: #6c757d; font-size: 14px; margin-top: 30px;">
+                Our team is here to support you on your financial journey. Don't hesitate to reach out if you have any questions.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated notification from UMSC Sacco Management System.</p>
+            <p>For assistance, contact us at: <a href="mailto:support@umscsacco.com">support@umscsacco.com</a></p>
+            <p>&copy; 2024 UMSC Sacco. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

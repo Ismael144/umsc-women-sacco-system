@@ -1,0 +1,91 @@
+{% load widget_tweaks %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="{{ form_icon|default:'bx bx-edit' }}"></i> {{ form_title }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form_sections %}
+                        {% for section in form_sections %}
+                            <div class="form-section">
+                                <h6><i class="{{ section.icon|default:'bx bx-info-circle' }}"></i> {{ section.title }}</h6>
+                                <div class="row">
+                                    {% for field_name in section.fields %}
+                                        <div class="col-md-{{ section.field_width|default:'6' }}">
+                                            {% with form|lookup:field_name as field %}
+                                                {% include 'forms/form_field.html' with field=field %}
+                                            {% endwith %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            {% for field in form.visible_fields %}
+                                <div class="col-md-6 mb-3">
+                                    {% include 'forms/form_field.html' with field=field %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="form-actions">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ back_url }}" class="btn btn-secondary">
+                                <i class='bx bx-arrow-back'></i> {{ back_text|default:"Back" }}
+                            </a>
+                            <div>
+                                {% if save_and_add_another %}
+                                    <button type="submit" name="save_and_add_another" class="btn btn-info me-2">
+                                        <i class='bx bx-plus'></i> Save & Add Another
+                                    </button>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary">
+                                    <i class='bx bx-save'></i> {{ submit_text|default:"Save" }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Form loading state
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            this.classList.add('form-loading');
+        });
+    });
+});
+</script>
+

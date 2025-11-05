@@ -1,0 +1,135 @@
+<!-- Generic AJAX Modal for Inline Creation -->
+<div class="modal fade" id="ajaxModal" tabindex="-1" aria-labelledby="ajaxModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ajaxModalLabel">Create New Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ajaxForm">
+                    {% csrf_token %}
+                    <div id="formFields">
+                        <!-- Form fields will be loaded here via AJAX -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveAjaxForm">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Specific Modals for Different Models -->
+<!-- Savings Account Modal -->
+<div class="modal fade" id="createSavingsAccountModal" tabindex="-1" aria-labelledby="createSavingsAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createSavingsAccountModalLabel">Create Savings Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="savingsAccountForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="member" class="form-label">Member *</label>
+                        <select name="member" id="member" class="form-select" required>
+                            <option value="">Select a member</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="product" class="form-label">Product *</label>
+                        <select name="product" id="product" class="form-select" required>
+                            <option value="">Select a product</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="account_number" class="form-label">Account Number</label>
+                        <input type="text" name="account_number" id="account_number" class="form-control" placeholder="Auto-generated if empty">
+                    </div>
+                    <div class="mb-3">
+                        <label for="balance" class="form-label">Initial Balance</label>
+                        <input type="number" name="balance" id="balance" class="form-control" step="0.01" value="0.00">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveSavingsAccount">Create Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Member Group Modal -->
+<div class="modal fade" id="createMemberGroupModal" tabindex="-1" aria-labelledby="createMemberGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createMemberGroupModalLabel">Create Member Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="memberGroupForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="group_name" class="form-label">Group Name *</label>
+                        <input type="text" name="name" id="group_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="group_code" class="form-label">Group Code *</label>
+                        <input type="text" name="code" id="group_code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="group_description" class="form-label">Description</label>
+                        <textarea name="description" id="group_description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="group_leader" class="form-label">Leader</label>
+                        <select name="leader" id="group_leader" class="form-select">
+                            <option value="">Select a leader</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveMemberGroup">Create Group</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expense Category Modal -->
+<div class="modal fade" id="createExpenseCategoryModal" tabindex="-1" aria-labelledby="createExpenseCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createExpenseCategoryModalLabel">Create Expense Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="expenseCategoryForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="category_name" class="form-label">Category Name *</label>
+                        <input type="text" name="name" id="category_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category_description" class="form-label">Description</label>
+                        <textarea name="description" id="category_description" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveExpenseCategory">Create Category</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

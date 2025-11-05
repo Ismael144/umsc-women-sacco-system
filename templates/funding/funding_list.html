@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Funding Management{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Funding Management</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+{% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+<div class="d-flex justify-content-between mb-4">
+    <div>
+        {% if selected_sacco %}
+        <h5 class="mb-0">Funding Management - {{ selected_sacco.name }}</h5>
+        {% else %}
+        <h5 class="mb-0">Funding Management</h5>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" onclick="showAddForm()">
+            <i class='bx bx-plus'></i> Add Funding
+        </button>
+        <a href="{% url 'enhanced_funds_allocation' %}" class="btn btn-outline-primary">
+            <i class='bx bx-transfer'></i> Allocate Funds
+        </a>
+    </div>
+</div>
+
+<!-- Status Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-warning">{{ status_counts.pending|default:0 }}</h5>
+                <p class="card-text">Pending</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-info">{{ status_counts.received|default:0 }}</h5>
+                <p class="card-text">Received</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-primary">{{ status_counts.allocated|default:0 }}</h5>
+                <p class="card-text">Allocated</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-success">{{ status_counts.spent|default:0 }}</h5>
+                <p class="card-text">Spent</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Funding Form Card -->
+<div class="card mb-4" id="addFormCard" style="display: none;">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class='bx bx-plus-circle'></i> Add New Funding
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="post" id="addFundingForm">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Funding Source</label>
+                    <select class="form-select" name="source" required>
+                        <option value="">Select Source</option>
+                        <option value="government">Government Grant</option>
+                        <option value="donor">International Donor</option>
+                        <option value="private">Private Donor</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Amount</label>
+                    <div class="input-group">
+                        <span class="input-group-text">UGX</span>
+                        <input type="number" class="form-control" name="amount" step="0.01" placeholder="Enter funding amount" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Purpose</label>
+                <textarea class="form-control" name="purpose" rows="3" placeholder="Enter funding purpose" required></textarea>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Received Date</label>
+                    <input type="date" class="form-control" name="received_date">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="status" required>
+                        <option value="pending">Pending</option>
+                        <option value="received">Received</option>
+                        <option value="spent">Spent</option>
+                    </select>
+                    <div class="form-text">
+                        <small class="text-muted">
+                            <i class='bx bx-info-circle'></i> 
+                            "Allocated" status is set automatically when you allocate funds through the allocation process.
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary" onclick="hideAddForm()">
+                    <i class='bx bx-x'></i> Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class='bx bx-save'></i> Add Funding
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        
+        
+        <form method="get" class="row g-3 align-items-end" id="filterForm">
+            <div class="col-md-5">
+                <label class="form-label">Filter by Status</label>
+                <select name="filter_status" class="form-select" id="statusSelect" onchange="submitFilter()">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="received" {% if current_status == 'received' %}selected{% endif %}>Received</option>
+                    <option value="allocated" {% if current_status == 'allocated' %}selected{% endif %}>Allocated</option>
+                    <option value="spent" {% if current_status == 'spent' %}selected{% endif %}>Spent</option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label">Filter by Source</label>
+                <select name="filter_source" class="form-select" id="sourceSelect" onchange="submitFilter()">
+                    <option value="">All Sources</option>
+                    {% for source in sources %}
+                        <option value="{{ source.id }}" {% if current_source == source.id|stringformat:"s" %}selected{% endif %}>
+                            {{ source.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 text-end">
+                <a href="{% url 'funding_list' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class='bx bx-x'></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Funding Records Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        {% if accessible_saccos|length > 1 %}
+                        <th>Sacco</th>
+                        {% endif %}
+                        <th>Amount</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                        <th>Received Date</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for funding in funding_records %}
+                    <tr>
+                        <td>
+                            <strong>{{ funding.source.name }}</strong>
+                            <br><small class="text-muted">{{ funding.source.contact_person }}</small>
+                        </td>
+                        {% if accessible_saccos|length > 1 %}
+                        <td>{{ funding.sacco.name|default:"N/A" }}</td>
+                        {% endif %}
+                        <td>{{ funding.amount|ugx }}</td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 200px;" title="{{ funding.purpose }}">
+                                {{ funding.purpose }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if funding.status == 'pending' %}bg-warning
+                                {% elif funding.status == 'received' %}bg-info
+                                {% elif funding.status == 'allocated' %}bg-primary
+                                {% elif funding.status == 'spent' %}bg-success
+                                {% else %}bg-secondary{% endif %}">
+                                {{ funding.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if funding.received_date %}
+                                {{ funding.received_date|date:"M d, Y" }}
+                            {% else %}
+                                <span class="text-muted">Not set</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ funding.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#viewModal{{ funding.id }}">
+                                    <i class='bx bx-show'></i>
+                                </button>
+                                {% if funding.status in 'pending,received' %}
+                                <a href="{% url 'enhanced_funds_allocation' %}?funding={{ funding.id }}" 
+                                   class="btn btn-outline-success" title="Allocate">
+                                    <i class='bx bx-transfer'></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if accessible_saccos|length > 1 %}8{% else %}7{% endif %}" class="text-center">No funding records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- View Details Modals -->
+{% for funding in funding_records %}
+<div class="modal fade" id="viewModal{{ funding.id }}" tabindex="-1" aria-labelledby="viewModalLabel{{ funding.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewModalLabel{{ funding.id }}">
+                    <i class='bx bx-show'></i> Funding Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Funding Source:</strong><br>
+                        {{ funding.source.name }}<br>
+                        <small class="text-muted">{{ funding.source.contact_person }}</small>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Amount:</strong><br>
+                        {{ funding.amount|ugx }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Status:</strong><br>
+                        <span class="badge 
+                            {% if funding.status == 'pending' %}bg-warning
+                            {% elif funding.status == 'received' %}bg-info
+                            {% elif funding.status == 'allocated' %}bg-primary
+                            {% elif funding.status == 'spent' %}bg-success
+                            {% else %}bg-secondary{% endif %}">
+                            {{ funding.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Received Date:</strong><br>
+                        {% if funding.received_date %}
+                            {{ funding.received_date|date:"M d, Y" }}
+                        {% else %}
+                            <span class="text-muted">Not set</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <strong>Purpose:</strong><br>
+                        {{ funding.purpose }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Created:</strong><br>
+                        {{ funding.created_at|date:"M d, Y H:i" }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Created By:</strong><br>
+                        {% if funding.created_by %}
+                            {{ funding.created_by.get_full_name|default:funding.created_by.username }}
+                        {% else %}
+                            <span class="text-muted">Unknown</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% if funding.status in 'pending,received' %}
+                <a href="{% url 'enhanced_funds_allocation' %}?funding={{ funding.id }}" 
+                   class="btn btn-primary">
+                    <i class='bx bx-transfer'></i> Allocate Funds
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% block extra_js %}
+<script>
+function showAddForm() {
+    document.getElementById('addFormCard').style.display = 'block';
+    document.querySelector('button[onclick="showAddForm()"]').style.display = 'none';
+}
+
+function hideAddForm() {
+    document.getElementById('addFormCard').style.display = 'none';
+    document.querySelector('button[onclick="showAddForm()"]').style.display = 'inline-block';
+    // Clear form
+    document.getElementById('addFundingForm').reset();
+}
+
+// Auto-submit filter function
+function submitFilter() {
+    const status = document.getElementById('statusSelect').value;
+    const source = document.getElementById('sourceSelect').value;
+    let url = '{% url "funding_list" %}';
+    const params = new URLSearchParams();
+    if (status) params.append('filter_status', status);
+    if (source) params.append('filter_source', source);
+    if (params.toString()) url += '?' + params.toString();
+    window.location.href = url;
+}
+
+</script>
+{% endblock %}
+{% endblock %}

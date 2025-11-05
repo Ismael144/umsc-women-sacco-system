@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Projects Overview{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'existing_projects' %}">Projects</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Projects Overview</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Projects</h6>
+                    <h3 class="mb-0">{{ total_all_projects }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Budget</h6>
+                    <h3 class="mb-0">{{ total_all_budget|ugx }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Saccos</h6>
+                    <h3 class="mb-0">{{ sacco_summaries|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sacco Summaries Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class='bx bx-folder'></i> Projects Summary by Sacco</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sacco Name</th>
+                            <th>District</th>
+                            <th>Total Projects</th>
+                            <th>Active</th>
+                            <th>Planning</th>
+                            <th>Completed</th>
+                            <th>On Hold</th>
+                            <th>Cancelled</th>
+                            <th>Total Budget</th>
+                            <th>Avg Budget</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for summary in sacco_summaries %}
+                        <tr>
+                            <td><strong>{{ summary.sacco.name }}</strong></td>
+                            <td>{{ summary.sacco.district.name|default:"N/A" }}</td>
+                            <td>{{ summary.total_projects }}</td>
+                            <td><span class="badge bg-success">{{ summary.active_projects }}</span></td>
+                            <td><span class="badge bg-warning">{{ summary.planning_projects }}</span></td>
+                            <td><span class="badge bg-info">{{ summary.completed_projects }}</span></td>
+                            <td><span class="badge bg-secondary">{{ summary.on_hold_projects }}</span></td>
+                            <td><span class="badge bg-danger">{{ summary.cancelled_projects }}</span></td>
+                            <td><strong>{{ summary.total_budget|ugx }}</strong></td>
+                            <td>{{ summary.avg_budget|ugx }}</td>
+                            <td>
+                                <a href="{% url 'existing_projects' %}?sacco={{ summary.sacco.id }}" class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-show'></i> View Projects
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="11" class="text-center text-muted">No projects data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

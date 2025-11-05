@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Activity Logs{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Activity Logs</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Filters -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Filter Activities</h4>
+                    <form method="get" class="row g-3">
+                        <div class="col-md-2">
+                            <label for="action" class="form-label">Action</label>
+                            <select class="form-select" id="action" name="action">
+                                <option value="">All Actions</option>
+                                {% for action_code, action_name in actions %}
+                                <option value="{{ action_code }}" {% if current_filters.action == action_code %}selected{% endif %}>{{ action_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="model" class="form-label">Model</label>
+                            <select class="form-select" id="model" name="model">
+                                <option value="">All Models</option>
+                                {% for model in models %}
+                                <option value="{{ model }}" {% if current_filters.model == model %}selected{% endif %}>{{ model }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="sacco" class="form-label">Sacco</label>
+                            <select class="form-select" id="sacco" name="sacco">
+                                <option value="">All Saccos</option>
+                                {% for sacco in saccos %}
+                                <option value="{{ sacco.id }}" {% if current_filters.sacco == sacco.id|stringformat:"s" %}selected{% endif %}>{{ sacco.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if regions %}
+                        <div class="col-md-2">
+                            <label for="region" class="form-label">Region</label>
+                            <select class="form-select" id="region" name="region">
+                                <option value="">All Regions</option>
+                                {% for region in regions %}
+                                <option value="{{ region.id }}" {% if current_filters.region == region.id|stringformat:"s" %}selected{% endif %}>{{ region.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-2">
+                            <label for="date_from" class="form-label">Date From</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" value="{{ current_filters.date_from }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="date_to" class="form-label">Date To</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" value="{{ current_filters.date_to }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Logs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Activity Logs</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Model</th>
+                                    <th>Object</th>
+                                    <th>Sacco</th>
+                                    <th>Region</th>
+                                    <th>Description</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activities %}
+                                <tr>
+                                    <td>{{ activity.timestamp|date:"M d, Y H:i:s" }}</td>
+                                    <td>{{ activity.user.username }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if activity.action == 'create' %}success{% elif activity.action == 'update' %}info{% elif activity.action == 'delete' %}danger{% elif activity.action == 'login' %}primary{% elif activity.action == 'logout' %}secondary{% else %}warning{% endif %}">
+                                            {{ activity.get_action_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ activity.model_name }}</td>
+                                    <td>{{ activity.object_name|truncatechars:30 }}</td>
+                                    <td>{{ activity.sacco.name|default:"-" }}</td>
+                                    <td>{{ activity.region.name|default:"-" }}</td>
+                                    <td>{{ activity.description|truncatechars:50 }}</td>
+                                    <td>{{ activity.ip_address|default:"-" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center">No activities found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if activities.has_other_pages %}
+                    <nav aria-label="Activities pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if activities.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ activities.previous_page_number }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.sacco %}&sacco={{ request.GET.sacco }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in activities.paginator.page_range %}
+                            {% if activities.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > activities.number|add:'-3' and num < activities.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.sacco %}&sacco={{ request.GET.sacco }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                            
+                            {% if activities.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ activities.next_page_number }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.sacco %}&sacco={{ request.GET.sacco }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Bulk Import Members{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'member_list' %}">Members</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Bulk Import</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bx bx-upload me-2"></i>
+                        Upload Member Data
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.file.id_for_label }}" class="form-label">
+                                Select File <span class="text-danger">*</span>
+                            </label>
+                            {{ form.file }}
+                            {% if form.file.help_text %}
+                                {% include 'components/help_text.html' with text=form.file.help_text %}
+                            {% endif %}
+                            {% if form.file.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.file.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bx bx-upload me-2"></i>
+                                Import Members
+                            </button>
+                            <a href="{% url 'member_list' %}" class="btn btn-secondary">
+                                <i class="bx bx-arrow-back me-2"></i>
+                                Back to Members
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bx bx-info-circle me-2"></i>
+                        Import Instructions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6>Required Fields:</h6>
+                    <ul class="list-unstyled mb-3">
+                        <li><i class="bx bx-check text-success me-2"></i>first_name</li>
+                        <li><i class="bx bx-check text-success me-2"></i>last_name</li>
+                        <li><i class="bx bx-check text-success me-2"></i>phone</li>
+                        <li><i class="bx bx-check text-success me-2"></i>gender</li>
+                        <li><i class="bx bx-check text-success me-2"></i>date_of_birth</li>
+                        <li><i class="bx bx-check text-success me-2"></i>home_address</li>
+                        <li><i class="bx bx-check text-success me-2"></i>village_town</li>
+                        <li><i class="bx bx-check text-success me-2"></i>district</li>
+                    </ul>
+
+                    <h6>Optional Fields:</h6>
+                    <ul class="list-unstyled mb-3">
+                        <li><i class="bx bx-minus text-muted me-2"></i>other_names</li>
+                        <li><i class="bx bx-minus text-muted me-2"></i>national_id</li>
+                        <li><i class="bx bx-minus text-muted me-2"></i>email</li>
+                        <li><i class="bx bx-minus text-muted me-2"></i>occupation</li>
+                        <li><i class="bx bx-minus text-muted me-2"></i>next_of_kin_name</li>
+                        <li><i class="bx bx-minus text-muted me-2"></i>next_of_kin_phone</li>
+                    </ul>
+
+                    <div class="alert alert-info">
+                        <i class="bx bx-info-circle me-2"></i>
+                        <strong>Note:</strong> Download the sample template to see the correct format.
+                    </div>
+
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="bx bx-download me-2"></i>
+                        Download Sample Template
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+

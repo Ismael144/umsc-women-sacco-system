@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Application Approved</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .loan-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .detail-value {
+            color: #6c757d;
+        }
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        .action-button:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8);
+            transform: translateY(-2px);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .congratulations {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .congratulations h3 {
+            color: #155724;
+            margin: 0 0 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="success-icon">🎉</div>
+            <h1>Loan Application Approved!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px;">Congratulations on your loan approval</p>
+        </div>
+        
+        <div class="content">
+            <div class="congratulations">
+                <h3>🎉 Congratulations!</h3>
+                <p style="margin: 0; color: #155724; font-weight: 500;">
+                    Your loan application has been successfully approved by our loan committee.
+                </p>
+            </div>
+            
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">Loan Details</h3>
+            
+            <div class="loan-details">
+                <div class="detail-row">
+                    <span class="detail-label">Loan Amount:</span>
+                    <span class="detail-value">UGX {{ notification.related_object.amount_approved|floatformat:2|default:"N/A" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Interest Rate:</span>
+                    <span class="detail-value">{{ notification.related_object.product.interest_rate|default:"N/A" }}% per annum</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Repayment Period:</span>
+                    <span class="detail-value">{{ notification.related_object.product.max_duration_months|default:"N/A" }} months</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Approved Date:</span>
+                    <span class="detail-value">{{ notification.related_object.approved_at|date:"F d, Y"|default:"N/A" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value" style="color: #28a745; font-weight: 600;">APPROVED</span>
+                </div>
+            </div>
+            
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                <h4 style="color: #856404; margin: 0 0 10px 0;">Next Steps:</h4>
+                <ul style="color: #856404; margin: 0; padding-left: 20px;">
+                    <li>Visit our office to complete the loan documentation</li>
+                    <li>Bring your national ID and any required collateral documents</li>
+                    <li>Sign the loan agreement and other necessary forms</li>
+                    <li>Funds will be disbursed within 2-3 business days after documentation</li>
+                </ul>
+            </div>
+            
+            {% if notification.action_url %}
+            <div style="text-align: center;">
+                <a href="{{ notification.action_url }}" class="action-button">
+                    View Loan Details
+                </a>
+            </div>
+            {% endif %}
+            
+            <p style="color: #6c757d; font-size: 14px; margin-top: 30px;">
+                If you have any questions about your loan approval, please don't hesitate to contact our loan department.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated notification from UMSC Sacco Management System.</p>
+            <p>For assistance, contact us at: <a href="mailto:loans@umscsacco.com">loans@umscsacco.com</a></p>
+            <p>&copy; 2024 UMSC Sacco. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

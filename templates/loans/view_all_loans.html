@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}View All Loans{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">All Loans</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+{% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+<div class="d-flex justify-content-between mb-4">
+    <div>
+        {% if selected_sacco %}
+        <h5 class="mb-0">All Loans - {{ selected_sacco.name }}</h5>
+        {% else %}
+        <h5 class="mb-0">All Loans</h5>
+        {% endif %}
+    </div>
+    <div class="btn-group">
+        <a href="{% url 'add_loan' %}" class="btn btn-primary">
+            <i class='bx bx-plus'></i> Add Loan
+        </a>
+        <a href="?export=csv{% if selected_sacco_id %}&sacco={{ selected_sacco_id }}{% endif %}" class="btn btn-outline-success">
+            <i class='bx bx-download'></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search loans...">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="statusFilter" data-column="4">
+                    <option value="">All Status</option>
+                    <option value="pending_approval">Pending Approval</option>
+                    <option value="approved">Approved</option>
+                    <option value="disbursed">Disbursed</option>
+                    <option value="active">Active</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Loan #</th>
+                        <th>Member</th>
+                        {% if accessible_saccos|length > 1 %}
+                        <th>Sacco</th>
+                        {% endif %}
+                        <th>Amount</th>
+                        <th>Product</th>
+                        <th>Status</th>
+                        <th>Application Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loan in loans %}
+                    <tr>
+                        <td>{{ loan.loan_number|default:"N/A" }}</td>
+                        <td>{{ loan.member.full_name }}</td>
+                        {% if accessible_saccos|length > 1 %}
+                        <td>{{ loan.member.sacco.name|default:"N/A" }}</td>
+                        {% endif %}
+                        <td>{{ loan.amount_requested|ugx }}</td>
+                        <td>{{ loan.product.name|default:"N/A" }}</td>
+                        <td>
+                            <span class="badge bg-{% if loan.status == 'approved' %}success{% elif loan.status == 'pending_approval' %}warning{% elif loan.status == 'declined' %}danger{% else %}info{% endif %}">
+                                {{ loan.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ loan.application_date|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'loan_profile' loan.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                    <i class='bx bx-show'></i>
+                                </a>
+                                <a href="{% url 'edit_loan' loan.id %}" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                    <i class='bx bx-edit'></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if accessible_saccos|length > 1 %}8{% else %}7{% endif %}" class="text-center text-muted py-4">
+                            <i class='bx bx-info-circle display-4 d-block mb-2'></i>
+                            No loans found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

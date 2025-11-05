@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Savings Statements{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'savings_accounts' %}">Savings Accounts</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Savings Statements</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <button class="btn btn-primary">
+        <i class='bx bx-download'></i> Export Statement
+    </button>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <label class="form-label">Select Account</label>
+        <select class="form-select" id="accountSelect" onchange="location.href='?account='+this.value">
+            <option value="">All Accounts</option>
+            {% for acc in accounts %}
+                <option value="{{ acc.id }}" {% if account and account.id == acc.id %}selected{% endif %}>
+                    {{ acc.account_number }} - {{ acc.member.full_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">From Date</label>
+        <input type="date" class="form-control" id="fromDate">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">To Date</label>
+        <input type="date" class="form-control" id="toDate">
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Transaction Type</th>
+                        <th>Amount</th>
+                        <th>Balance After</th>
+                        <th>Description</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if transaction.txn_type == 'Deposit' %}bg-success
+                                {% elif transaction.txn_type == 'Withdrawal' %}bg-danger
+                                {% elif transaction.txn_type == 'Interest' %}bg-info
+                                {% elif transaction.txn_type == 'Fee' %}bg-secondary
+                                {% elif transaction.txn_type == 'Transfer' %}bg-primary
+                                {% else %}bg-light text-dark{% endif %}">
+                                {{ transaction.txn_type }}
+                            </span>
+                        </td>
+                        <td>{{ transaction.amount|ugx }}</td>
+                        <td>{{ transaction.running_balance|ugx }}</td>
+                        <td>{{ transaction.narration }}</td>
+                        <td>{{ transaction.reference }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No transactions found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+

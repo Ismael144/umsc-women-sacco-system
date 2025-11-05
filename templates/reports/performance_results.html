@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Enter KPI Results{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports_index' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Enter KPI Results</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            {% if accessible_saccos %}
+            <div class="d-flex align-items-center gap-2">
+                <label for="sacco-select" class="form-label mb-0"><strong>Select Sacco:</strong></label>
+                <select id="sacco-select" class="form-select" style="min-width: 250px;" onchange="window.location.href='?sacco=' + this.value{% if request.GET.period %} + '&period={{ request.GET.period }}'{% endif %}">
+                    {% for s in accessible_saccos %}
+                    <option value="{{ s.id }}" {% if s.id == sacco.id %}selected{% endif %}>
+                        {{ s.name }} - {{ s.region.name|default:"No Region" }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div>
+                <span class="text-muted">Period:</span> <strong>{{ period.name }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <form method="post">{% csrf_token %}
+        {% for kra, kpis in kra_to_kpis.items %}
+        <div class="card mb-3">
+            <div class="card-header"><h6 class="mb-0">{{ kra.title }}</h6></div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light"><tr><th>KPI</th><th>Target</th><th>Actual</th></tr></thead>
+                        <tbody>
+                        {% for kpi in kpis %}
+                            <tr>
+                                <td>{{ kpi.name }}</td>
+                                <td>{{ kpi.target_value }}</td>
+                                <td>
+                                    <input type="number" step="0.01" name="actual_value_{{ kpi.id }}" class="form-control">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">No KPIs found. <a href="{% url 'reports_performance_kras' %}">Add KRAs</a> and KPIs first.</p>
+        {% endfor %}
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-primary" type="submit">Save Results</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

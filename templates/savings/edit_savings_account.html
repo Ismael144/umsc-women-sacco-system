@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Edit Savings Account{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'savings_accounts' %}">Savings Accounts</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Savings Account</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Edit Savings Account</h4>
+    <a href="{% url 'savings_accounts' %}" class="btn btn-outline-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Accounts
+    </a>
+</div>
+
+{% if accessible_saccos and accessible_saccos|length > 1 %}
+<div class="card mb-4 border-primary">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <label for="sacco-selector" class="form-label mb-0 fw-bold">
+                    <i class='bx bx-building text-primary'></i> Select Sacco for Account Editing:
+                </label>
+                {% if selected_sacco %}
+                <div class="mt-2">
+                    <span class="badge bg-primary">
+                        <i class='bx bx-check-circle'></i> Selected: {{ selected_sacco.name }}
+                        {% if selected_sacco.district %}
+                        <small>({{ selected_sacco.district.name }})</small>
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <select class="form-select form-select-lg" id="sacco-selector" name="sacco" onchange="filterBySacco(this.value)">
+                    <option value="">Select Sacco</option>
+                    {% for sacco in accessible_saccos %}
+                    <option value="{{ sacco.id }}" {% if selected_sacco_id and selected_sacco_id|stringformat:"s" == sacco.id|stringformat:"s" %}selected{% endif %}>
+                        {{ sacco.name }} {% if sacco.district %}({{ sacco.district.name }}){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function filterBySacco(saccoId) {
+    const url = new URL(window.location.href);
+    if (saccoId) {
+        url.searchParams.set('sacco', saccoId);
+    } else {
+        url.searchParams.delete('sacco');
+    }
+    window.location.href = url.toString();
+}
+
+// Ensure selected sacco is properly set on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const saccoParam = urlParams.get('sacco');
+    const selectElement = document.getElementById('sacco-selector');
+    if (saccoParam && selectElement) {
+        selectElement.value = saccoParam;
+    } else if (selectElement && !saccoParam) {
+        // Pre-select the account's sacco if no sacco param is provided
+        const accountSaccoId = '{{ account.member.sacco.id }}';
+        if (accountSaccoId) {
+            selectElement.value = accountSaccoId;
+        }
+    }
+});
+</script>
+{% endif %}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {% if accessible_saccos and accessible_saccos|length > 1 %}
+            <input type="hidden" name="sacco" value="{{ selected_sacco_id|default:account.member.sacco.id }}">
+            {% elif accessible_saccos and accessible_saccos|length == 1 %}
+            <input type="hidden" name="sacco" value="{{ accessible_saccos.0.id }}">
+            {% endif %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.member.id_for_label }}" class="form-label">Member *</label>
+                        {{ form.member }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.product.id_for_label }}" class="form-label">Product *</label>
+                        <div class="input-group">
+                            {{ form.product }}
+                            <button type="button" class="btn btn-outline-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#createSavingProductModal">
+                                <i class='bx bx-plus'></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="account_number" class="form-label">Account Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="account_number" name="account_number" 
+                               value="{{ account.account_number }}" placeholder="Enter account number" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="balance" class="form-label">Balance</label>
+                        <input type="number" class="form-control" id="balance" name="balance" 
+                               step="0.01" value="{{ account.balance }}" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'savings_accounts' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class='bx bx-save'></i> Update Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

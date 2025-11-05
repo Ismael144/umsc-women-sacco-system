@@ -1,0 +1,30 @@
+{% comment %}
+Help text component for better UX
+Usage: {% include 'components/help_text.html' with text="Enter the member's full name as it appears on their ID" %}
+{% endcomment %}
+
+<div class="help-text">
+    <i class="bx bx-info-circle text-info me-1"></i>
+    <small class="text-muted">{{ text }}</small>
+</div>
+
+<style>
+.help-text {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.help-text i {
+    font-size: 0.875rem;
+}
+</style>
+
+
+
+
+
+
+
+
+
+

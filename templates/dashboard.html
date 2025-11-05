@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Key Performance Indicators -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="mb-3"><i class='bx bx-bar-chart me-2'></i>Key Performance Indicators</h5>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-3">
+        <div class="card border-left-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-primary">Total Members</h6>
+                        <h3 class="mb-0">{{ total_members }}</h3>
+                        <small class="text-muted">Registered members</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class='bx bx-group text-primary' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-3">
+        <div class="card border-left-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-info">Active Loans</h6>
+                        <h3 class="mb-0">{{ total_loans }}</h3>
+                        <small class="text-muted">Currently active</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class='bx bx-credit-card text-info' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-3">
+        <div class="card border-left-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-warning">Total Savings</h6>
+                        <h3 class="mb-0">{{ total_savings|ugx:0 }}</h3>
+                        <small class="text-muted">Total savings amount</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class='bx bx-wallet text-warning' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-3">
+        <div class="card border-left-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="text-success">External Funding</h6>
+                        <h3 class="mb-0">{{ total_funding|ugx:0 }}</h3>
+                        <small class="text-muted">Total funding received</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class='bx bx-money text-success' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Analytics Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="mb-3"><i class='bx bx-line-chart me-2'></i>Financial Analytics</h5>
+    </div>
+    <div class="col-xl-8 col-lg-7 col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class='bx bx-trending-up me-2'></i>Loan Repayment Trends
+                </h6>
+                <small class="text-muted">Monthly repayment performance over the last 6 months</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="repaymentsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-lg-5 col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class='bx bx-pie-chart me-2'></i>Member Demographics
+                </h6>
+                <small class="text-white-50">Gender distribution of active members</small>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Priority Alerts -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="mb-3"><i class='bx bx-bell me-2'></i>Priority Alerts</h5>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card border-left-danger">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Overdue Loans</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">3</div>
+                        <div class="text-xs text-muted mt-1">
+                            <i class='bx bx-alert-triangle text-danger'></i> Requires immediate attention
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class='bx bx-error-circle text-danger' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card border-left-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Approvals</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">7</div>
+                        <div class="text-xs text-muted mt-1">
+                            <i class='bx bx-time text-warning'></i> Awaiting review
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class='bx bx-time-five text-warning' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card border-left-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">New Members</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                        <div class="text-xs text-muted mt-1">
+                            <i class='bx bx-user-plus text-success'></i> This month
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class='bx bx-user-plus text-success' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Management -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="mb-3"><i class='bx bx-table me-2'></i>Transaction Management</h5>
+    </div>
+    <div class="col-lg-6 col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="m-0 font-weight-bold">
+                    <i class='bx bx-credit-card me-2'></i>Upcoming Loan Repayments
+                </h6>
+                <small class="text-muted">Members with pending loan payments this month</small>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped data-table" id="loanRepaymentsTable">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>$500.00</td>
+                                <td>Jan 15, 2024</td>
+                                <td><span class="badge bg-warning">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                    <button class="btn btn-sm btn-outline-success">Mark Paid</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Jane Smith</td>
+                                <td>$750.00</td>
+                                <td>Jan 20, 2024</td>
+                                <td><span class="badge bg-warning">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                    <button class="btn btn-sm btn-outline-success">Mark Paid</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 p-2 bg-light rounded">
+                    <small class="text-muted">
+                        <i class='bx bx-info-circle me-1'></i>
+                        <strong>Total Due:</strong> $1,250.00 | <strong>Overdue:</strong> 0 payments
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class='bx bx-wallet me-2'></i>Recent Savings Deposits
+                </h6>
+                <small class="text-muted">Latest member savings contributions</small>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped data-table" id="savingsDepositsTable">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Alice Johnson</td>
+                                <td>$200.00</td>
+                                <td>Jan 10, 2024</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                    <button class="btn btn-sm btn-outline-info">Print</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Bob Wilson</td>
+                                <td>$150.00</td>
+                                <td>Jan 09, 2024</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">View</button>
+                                    <button class="btn btn-sm btn-outline-info">Print</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 p-2 bg-light rounded">
+                    <small class="text-muted">
+                        <i class='bx bx-info-circle me-1'></i>
+                        <strong>Total Deposited:</strong> $350.00 | <strong>This Month:</strong> 2 transactions
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <h5 class="mb-3"><i class='bx bx-bolt me-2'></i>Quick Actions</h5>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class='bx bx-user-plus text-primary' style="font-size: 2.5rem;"></i>
+                <h6 class="card-title mt-2">Register Member</h6>
+                <p class="card-text text-muted small">Add new member to the Sacco</p>
+                <a href="/members/register/" class="btn btn-primary btn-sm">Register</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class='bx bx-credit-card text-success' style="font-size: 2.5rem;"></i>
+                <h6 class="card-title mt-2">Process Loan</h6>
+                <p class="card-text text-muted small">Create new loan application</p>
+                <a href="/loans/add/" class="btn btn-success btn-sm">Process</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class='bx bx-wallet text-info' style="font-size: 2.5rem;"></i>
+                <h6 class="card-title mt-2">Add Savings</h6>
+                <p class="card-text text-muted small">Record member savings deposit</p>
+                <a href="/savings/add/" class="btn btn-info btn-sm">Add</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class='bx bx-file text-warning' style="font-size: 2.5rem;"></i>
+                <h6 class="card-title mt-2">Generate Report</h6>
+                <p class="card-text text-muted small">Create financial reports</p>
+                <a href="{% url 'reports_index' %}" class="btn btn-warning btn-sm">Generate</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Register Chart.js datalabels plugin
+Chart.register(ChartDataLabels);
+// Loan Repayments Chart
+const repaymentsCtx = document.getElementById('repaymentsChart').getContext('2d');
+const repaymentsChart = new Chart(repaymentsCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+            label: 'Monthly Repayments',
+            data: [12000, 15000, 18000, 14000, 16000, 20000],
+            borderColor: '#008f4d',
+            backgroundColor: 'rgba(0, 143, 77, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#008f4d',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointLabelFontSize: 12,
+            pointLabelFontColor: '#008f4d'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                borderColor: '#008f4d',
+                borderWidth: 2,
+                cornerRadius: 8,
+                displayColors: true,
+                callbacks: {
+                    title: function(context) {
+                        return 'Month: ' + context[0].label;
+                    },
+                    label: function(context) {
+                        return 'Repayments: UGX ' + context.parsed.y.toLocaleString();
+                    },
+                    afterLabel: function(context) {
+                        const data = context.dataset.data;
+                        const current = context.parsed.y;
+                        const previous = context.dataIndex > 0 ? data[context.dataIndex - 1] : null;
+                        if (previous) {
+                            const change = ((current - previous) / previous * 100).toFixed(1);
+                            return 'Change: ' + (change > 0 ? '+' : '') + change + '%';
+                        }
+                        return '';
+                    }
+                }
+            },
+            datalabels: {
+                display: true,
+                color: '#008f4d',
+                font: {
+                    size: 11,
+                    weight: 'bold'
+                },
+                formatter: function(value, context) {
+                    return '$' + (value / 1000) + 'k';
+                },
+                anchor: 'end',
+                align: 'top',
+                offset: 4
+            }
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Month',
+                    font: {
+                        size: 14,
+                        weight: 'bold',
+                        color: '#2c3e50'
+                    },
+                    padding: { top: 10 }
+                },
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    },
+                    color: '#6c757d'
+                }
+            },
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Amount ($)',
+                    font: {
+                        size: 14,
+                        weight: 'bold',
+                        color: '#2c3e50'
+                    },
+                    padding: { bottom: 10 }
+                },
+                ticks: {
+                    callback: function(value) {
+                        return 'UGX ' + value.toLocaleString();
+                    },
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    },
+                    color: '#6c757d'
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.1)',
+                    drawBorder: false
+                }
+            }
+        },
+        elements: {
+            line: {
+                borderWidth: 3
+            },
+            point: {
+                hoverBackgroundColor: '#ffffff',
+                hoverBorderColor: '#008f4d',
+                hoverBorderWidth: 3
+            }
+        }
+    }
+});
+
+// Gender Distribution Chart
+const genderCtx = document.getElementById('genderChart').getContext('2d');
+const genderChart = new Chart(genderCtx, {
+    type: 'doughnut',
+        data: {
+            labels: ['Male', 'Female', 'Other'],
+            datasets: [{
+            label: 'Members by Gender',
+                data: [45, 50, 5],
+                backgroundColor: [
+                    '#008f4d',
+                    '#e74c3c',
+                    '#f39c12'
+                ],
+            borderWidth: 3,
+            borderColor: '#ffffff',
+            hoverBorderWidth: 4,
+            hoverOffset: 10
+            }]
+        },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                borderColor: '#008f4d',
+                borderWidth: 2,
+                cornerRadius: 8,
+                displayColors: true,
+                callbacks: {
+                    title: function(context) {
+                        return 'Gender Distribution';
+                    },
+                    label: function(context) {
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                        return context.label + ': ' + context.parsed + ' members (' + percentage + '%)';
+                    }
+                }
+            },
+            datalabels: {
+                display: true,
+                color: '#ffffff',
+                font: {
+                    size: 14,
+                    weight: 'bold'
+                },
+                formatter: function(value, context) {
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(0);
+                    return percentage + '%';
+                },
+                anchor: 'center',
+                align: 'center'
+            }
+        },
+        elements: {
+            arc: {
+                borderWidth: 3,
+                borderColor: '#ffffff'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

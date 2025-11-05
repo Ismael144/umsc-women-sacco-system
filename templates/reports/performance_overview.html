@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Sacco Performance - KRAs & KPIs{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports_index' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Performance Overview</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            {% if accessible_saccos %}
+            <div class="d-flex align-items-center gap-2">
+                <label for="sacco-select" class="form-label mb-0"><strong>Select Sacco:</strong></label>
+                <select id="sacco-select" class="form-select" style="min-width: 250px;" onchange="window.location.href='?sacco=' + this.value + '{% if request.GET.period %}&period={{ request.GET.period }}{% endif %}'">
+                    {% for s in accessible_saccos %}
+                    <option value="{{ s.id }}" {% if s.id == sacco.id %}selected{% endif %}>
+                        {{ s.name }} - {{ s.region.name|default:"No Region" }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <form method="get" class="d-flex gap-2">
+                {% if accessible_saccos %}<input type="hidden" name="sacco" value="{{ sacco.id }}">{% endif %}
+                <select name="period" class="form-select">
+                    {% for p in periods %}
+                        <option value="{{ p.id }}" {% if p.id == period.id %}selected{% endif %}>{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-outline-primary" type="submit">Apply</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-left-primary"><div class="card-body"><h6 class="text-primary">Overall Score</h6><h3 class="mb-0">{{ overall_score|floatformat:2 }}</h3></div></div>
+        </div>
+        <div class="col-lg-9 col-md-6 mb-3">
+            <div class="card"><div class="card-body"><small class="text-muted">Period:</small> <strong>{{ period.name }}</strong> ({{ period.start_date }} - {{ period.end_date }})</div></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0">KRAs & KPIs</h6></div>
+                <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-lg-8 mb-3">
+                        <canvas id="kraAchievementChart" height="120"></canvas>
+                    </div>
+                    <div class="col-lg-4 mb-3">
+                        <canvas id="scoreTrendChart" height="120"></canvas>
+                    </div>
+                </div>
+                    {% for row in kra_rows %}
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">{{ row.kra.title }}</h6>
+                                <span class="badge bg-primary">KRA Score: {{ row.kra_score }}</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>KPI</th>
+                                            <th>Target</th>
+                                            <th>Actual</th>
+                                            <th>Achievement %</th>
+                                            <th>Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for k in row.kpis %}
+                                        <tr>
+                                            <td>{{ k.kpi.name }}</td>
+                                            <td>{{ k.kpi.target_value }}</td>
+                                            <td>{% if k.result %}{{ k.result.actual_value }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                                            <td>{{ k.achievement }}</td>
+                                            <td>{{ k.score }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                    {% empty %}
+                        <p class="text-muted">No KRAs defined yet. <a href="{% url 'reports_performance_kras' %}">Create KRAs</a></p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// KRA Achievement Chart
+const kraCtx = document.getElementById('kraAchievementChart');
+if (kraCtx) {
+    const kraLabels = [{% for r in kra_rows %}'{{ r.kra.title|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+    const kraData = [{% for r in kra_rows %}{{ r.kra_achievement|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+    new Chart(kraCtx, {
+        type: 'bar',
+        data: { labels: kraLabels, datasets: [{ label: 'Achievement %', data: kraData, backgroundColor: 'rgba(13,110,253,0.2)', borderColor: '#0d6efd', borderWidth: 2, borderRadius: 6 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 150 } }, plugins: { legend: { display: false } } }
+    });
+}
+
+// Score Trend Chart
+const trendCtx = document.getElementById('scoreTrendChart');
+if (trendCtx) {
+    const trendLabels = [{% for l in trend_labels %}'{{ l|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+    const trendScores = [{% for s in trend_scores %}{{ s }}{% if not forloop.last %},{% endif %}{% endfor %}];
+    new Chart(trendCtx, {
+        type: 'line',
+        data: { labels: trendLabels, datasets: [{ label: 'Overall Score', data: trendScores, borderColor: '#198754', backgroundColor: 'rgba(25,135,84,0.15)', fill: true, tension: 0.3, borderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+}
+</script>
+{% endblock %}
+

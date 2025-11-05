@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Reports{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Reports</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Reports Cards -->
+    <div class="row">
+        <div class="col-xl-4 col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="avatar-lg mx-auto mb-3">
+                        <div class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                            <i class="bx bx-credit-card font-size-24"></i>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Loan Reports</h5>
+                    <p class="text-muted mb-4">Generate comprehensive loan reports and analytics</p>
+                    <a href="{% url 'loan_report' %}" class="btn btn-primary">
+                        <i class="bx bx-arrow-right me-1"></i>View Loan Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="avatar-lg mx-auto mb-3">
+                        <div class="avatar-title rounded-circle bg-success bg-soft text-success">
+                            <i class="bx bx-group font-size-24"></i>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Member Reports</h5>
+                    <p class="text-muted mb-4">Generate member statistics and membership reports</p>
+                    <a href="{% url 'member_report' %}" class="btn btn-success">
+                        <i class="bx bx-arrow-right me-1"></i>View Member Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="avatar-lg mx-auto mb-3">
+                        <div class="avatar-title rounded-circle bg-info bg-soft text-info">
+                            <i class="bx bx-wallet font-size-24"></i>
+                        </div>
+                    </div>
+                    <h5 class="card-title">Funding Reports</h5>
+                    <p class="text-muted mb-4">Generate funding and financial reports</p>
+                    <a href="{% url 'funding_report' %}" class="btn btn-info">
+                        <i class="bx bx-arrow-right me-1"></i>View Funding Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+

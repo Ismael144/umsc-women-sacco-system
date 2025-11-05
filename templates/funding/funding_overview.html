@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Funding Overview{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'funding_list' %}">Funding</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Funding Overview</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Funding Records</h6>
+                    <h3 class="mb-0">{{ total_all_funding }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Amount</h6>
+                    <h3 class="mb-0">{{ total_all_amount|ugx }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Saccos</h6>
+                    <h3 class="mb-0">{{ sacco_summaries|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sacco Summaries Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class='bx bx-money'></i> Funding Summary by Sacco</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sacco Name</th>
+                            <th>District</th>
+                            <th>Total Funding</th>
+                            <th>Pending</th>
+                            <th>Received</th>
+                            <th>Allocated</th>
+                            <th>Spent</th>
+                            <th>Total Amount</th>
+                            <th>Avg Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for summary in sacco_summaries %}
+                        <tr>
+                            <td><strong>{{ summary.sacco.name }}</strong></td>
+                            <td>{{ summary.sacco.district.name|default:"N/A" }}</td>
+                            <td>{{ summary.total_funding }}</td>
+                            <td><span class="badge bg-warning">{{ summary.pending }}</span></td>
+                            <td><span class="badge bg-info">{{ summary.received }}</span></td>
+                            <td><span class="badge bg-primary">{{ summary.allocated }}</span></td>
+                            <td><span class="badge bg-success">{{ summary.spent }}</span></td>
+                            <td><strong>{{ summary.total_amount|ugx }}</strong></td>
+                            <td>{{ summary.avg_amount|ugx }}</td>
+                            <td>
+                                <a href="{% url 'funding_list' %}?sacco={{ summary.sacco.id }}" class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-show'></i> View Funding
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center text-muted">No funding data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

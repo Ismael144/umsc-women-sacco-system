@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% load currency %}
+{% block page_title %}Loan Profile{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'view_all_loans' %}">Loans</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Loan Profile</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Loan Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Loan Number:</strong> {{ loan.loan_number }}</p>
+                        <p><strong>Member:</strong> {{ loan.member.full_name }}</p>
+                        <p><strong>Product:</strong> {{ loan.product.name }}</p>
+                        <p><strong>Amount Requested:</strong> {{ loan.amount_requested|ugx }}</p>
+                        <p><strong>Amount Approved:</strong> 
+                            {% if loan.amount_approved %}
+                                {{ loan.amount_approved|ugx }}
+                            {% else %}
+                                <span class="text-muted">Not approved yet</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Total Amount:</strong> {{ loan.total_amount|ugx }}</p>
+                        <p><strong>Total Repaid:</strong> {{ loan.total_repayments|ugx }}</p>
+                        <p><strong>Remaining Balance:</strong> 
+                            <span class="{% if loan.remaining_balance > 0 %}text-danger{% else %}text-success{% endif %}">
+                                {{ loan.remaining_balance|ugx }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Interest Rate:</strong> {{ loan.interest_rate }}%</p>
+                        <p><strong>Duration:</strong> {{ loan.duration_months }} months</p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge bg-{% if loan.status == 'approved' %}success{% elif loan.status == 'pending_approval' %}warning{% elif loan.status == 'declined' %}danger{% elif loan.status == 'closed' %}success{% elif loan.status == 'active' %}primary{% else %}info{% endif %}">
+                                {{ loan.get_status_display }}
+                            </span>
+                        </p>
+                        <p><strong>Application Date:</strong> {{ loan.application_date|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Purpose</h6>
+                    <p>{{ loan.purpose }}</p>
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Collateral</h6>
+                    <p>{{ loan.collateral|default:"None" }}</p>
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Guarantors</h6>
+                    <p>{{ loan.guarantors|default:"None" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if loan.status == 'pending_approval' %}
+                    <a href="{% url 'approve_loan' loan.id %}" class="btn btn-success w-100 mb-2">
+                        <i class='bx bx-check'></i> Approve Loan
+                    </a>
+                    <a href="{% url 'reject_loan' loan.id %}" class="btn btn-danger w-100 mb-2">
+                        <i class='bx bx-x'></i> Decline Loan
+                    </a>
+                {% elif loan.status == 'approved' %}
+                    <a href="{% url 'disburse_loan' loan.id %}" class="btn btn-primary w-100 mb-2">
+                        <i class='bx bx-money'></i> Disburse Loan
+                    </a>
+                {% elif loan.status == 'closed' %}
+                    <div class="alert alert-success text-center">
+                        <i class='bx bx-check-circle'></i><br>
+                        <strong>Loan Fully Repaid!</strong><br>
+                        <small>This loan has been completed and closed.</small>
+                    </div>
+                {% endif %}
+
+                {% if loan.status != 'closed' %}
+                <a href="{% url 'repayments' %}?loan={{ loan.id }}" class="btn btn-outline-primary w-100 mb-2">
+                    <i class='bx bx-receipt'></i> Add Repayment
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'view_all_loans' %}" class="btn btn-secondary w-100">
+                    <i class='bx bx-arrow-back'></i> Back to Loans
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Repayment History</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Principal</th>
+                                <th>Interest</th>
+                                <th>Method</th>
+                                <th>Reference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for repayment in repayments %}
+                            <tr>
+                                <td>{{ repayment.payment_date|date:"M d, Y" }}</td>
+                                <td>{{ repayment.amount|ugx }}</td>
+                                <td>{{ repayment.principal_amount|ugx }}</td>
+                                <td>{{ repayment.interest_amount|ugx }}</td>
+                                <td>{{ repayment.payment_method }}</td>
+                                <td>{{ repayment.reference_number|default:"N/A" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No repayments found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+

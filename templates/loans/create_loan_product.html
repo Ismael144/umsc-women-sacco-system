@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Create Loan Product{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'view_all_loans' %}">Loans</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'manage_loan_products' %}">Loan Products</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Create Loan Product</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-plus-circle'></i> Create Loan Product
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Product Name</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.product_code.id_for_label }}" class="form-label">Product Code</label>
+                            {{ form.product_code }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.interest_rate.id_for_label }}" class="form-label">Interest Rate (%)</label>
+                            {{ form.interest_rate }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.interest_type.id_for_label }}" class="form-label">Interest Type</label>
+                            {{ form.interest_type }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.min_amount.id_for_label }}" class="form-label">Minimum Amount</label>
+                            {{ form.min_amount }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.max_amount.id_for_label }}" class="form-label">Maximum Amount</label>
+                            {{ form.max_amount }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.min_duration_months.id_for_label }}" class="form-label">Minimum Duration (Months)</label>
+                            {{ form.min_duration_months }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.max_duration_months.id_for_label }}" class="form-label">Maximum Duration (Months)</label>
+                            {{ form.max_duration_months }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.processing_fee_percent.id_for_label }}" class="form-label">Processing Fee (%)</label>
+                            {{ form.processing_fee_percent }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.grace_period_months.id_for_label }}" class="form-label">Grace Period (Months)</label>
+                            {{ form.grace_period_months }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                {{ form.allow_partial_disbursement }}
+                                <label class="form-check-label" for="{{ form.allow_partial_disbursement.id_for_label }}">
+                                    Allow Partial Disbursement
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active Product
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'manage_loan_products' %}" class="btn btn-secondary">
+                            <i class='bx bx-arrow-back'></i> Back to Products
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class='bx bx-save'></i> Create Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

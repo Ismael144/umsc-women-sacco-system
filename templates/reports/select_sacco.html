@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Select Sacco{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports_index' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Select Sacco</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class='bx bx-building-house'></i> Select Sacco for Performance Reports
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        As a system administrator, please select a Sacco to view its performance reports.
+                    </p>
+                    
+                    {% if saccos %}
+                    <div class="list-group">
+                        {% for sacco in saccos %}
+                        <a href="?sacco={{ sacco.id }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ sacco.name }}</h6>
+                                <small class="text-muted">{{ sacco.registration_number }}</small>
+                            </div>
+                            <i class='bx bx-chevron-right'></i>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class='bx bx-info-circle'></i> No active Saccos found.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

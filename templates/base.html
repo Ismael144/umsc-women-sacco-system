@@ -1,0 +1,4954 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sacco Management System{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'images/UMSC LOGO.png' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/UMSC LOGO.png' %}">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <link href="{% static 'css/forms.css' %}" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Datalabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #2c3e50;
+            font-weight: 400;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 300px;
+            background: #ffffff !important;
+            color: #2c3e50 !important;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease, transform 0.3s ease;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #e9ecef !important;
+        }
+        
+        .sidebar.collapsed {
+            width: 70px !important;
+            background: #ffffff !important; /* keep white, remove dark background */
+            overflow-x: hidden !important;
+        }
+        
+        .sidebar.collapsed .nav-link {
+            text-align: center;
+            padding: 12px 8px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .sidebar.collapsed .nav-link i {
+            font-size: 18px;
+            margin: 0;
+            display: block;
+        }
+        
+        .sidebar.collapsed .nav-link span {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .nav-link .nav-text {
+            display: none !important;
+        }
+        
+        /* Hide all text content except icons */
+        .sidebar.collapsed .nav-link *:not(i) {
+            display: none !important;
+        }
+        
+        /* More aggressive text hiding */
+        .sidebar.collapsed .nav-link {
+            font-size: 0 !important;
+        }
+        
+        .sidebar.collapsed .nav-link i {
+            font-size: 18px !important;
+            display: block !important;
+        }
+        
+        /* Hide chevron icons in collapsed state */
+        .sidebar.collapsed .nav-link .bx-chevron-down {
+            display: none !important;
+        }
+        
+        /* Hide float-end elements */
+        .sidebar.collapsed .nav-link .float-end {
+            display: none !important;
+        }
+        
+        /* Hide all collapse menus when sidebar is collapsed */
+        .sidebar.collapsed .collapse {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .nav-link[data-bs-toggle="collapse"] {
+            pointer-events: none;
+        }
+        
+        .sidebar.collapsed .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .sidebar.collapsed .nav-link:hover i {
+            transform: scale(1.1);
+        }
+        
+        .sidebar.collapsed .sidebar-header {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .sidebar-logo {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .sidebar-logo h4,
+        .sidebar.collapsed .sidebar-logo p {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .logo-icon {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .sidebar-brand {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .text-center {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .position-sticky {
+            padding-top: 0 !important;
+        }
+        
+        .sidebar.collapsed .nav {
+            margin-top: 50px;
+        }
+        
+        .sidebar.collapsed .nav-link *:not(i) {
+            display: none !important;
+        }
+        
+        /* Sidebar backdrop/overlay for mobile */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Enhanced mobile responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 300px;
+                z-index: 999;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            /* When sidebar is shown on mobile, show backdrop */
+            .sidebar.show ~ .sidebar-backdrop,
+            body.sidebar-open .sidebar-backdrop {
+                display: block;
+                opacity: 1;
+            }
+            
+            /* Don't allow collapsed state on mobile - always show full sidebar when open */
+            .sidebar.collapsed {
+                width: 300px;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.collapsed.show {
+                transform: translateX(0);
+                width: 300px;
+            }
+            
+            .sidebar .nav-link {
+                padding: 14px 16px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .sidebar .nav-link i {
+                font-size: 20px;
+                min-width: 24px;
+            }
+            
+            .sidebar-collapse-btn {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 280px;
+            }
+            
+            .sidebar.collapsed {
+                width: 60px;
+            }
+            
+            .sidebar.collapsed .nav-link {
+                padding: 10px 6px;
+                margin: 1px 0;
+            }
+            
+            .sidebar.collapsed .nav-link i {
+                font-size: 14px;
+            }
+            
+            .sidebar.collapsed .nav {
+                margin-top: 45px;
+            }
+            
+            .sidebar.collapsed .sidebar-collapse-btn {
+                right: 6px;
+                top: 6px;
+                padding: 5px 6px;
+                font-size: 11px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .sidebar.collapsed {
+                width: 55px;
+            }
+            
+            .sidebar.collapsed .nav-link {
+                padding: 8px 4px;
+            }
+            
+            .sidebar.collapsed .nav-link i {
+                font-size: 12px;
+            }
+            
+            .sidebar.collapsed .nav {
+                margin-top: 40px;
+            }
+        }
+        
+        .sidebar .nav-link {
+            color: #495057 !important;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 1px 12px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            position: relative;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, #4a7c59, #3a6b4a) !important;
+            border-radius: 0 2px 2px 0;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover {
+            background: linear-gradient(135deg, rgba(248, 249, 250, 0.8), rgba(233, 236, 239, 0.6));
+            color: #2c3e50;
+            transform: translateX(5px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar .nav-link:hover::before {
+            transform: scaleY(1);
+            background: #4a7c59 !important;
+        }
+        
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #2c3e50;
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid #4a7c59;
+        }
+        
+        .sidebar .nav-link.active::before {
+            transform: scaleY(1);
+            background: linear-gradient(135deg, #4a7c59, #3a6b4a) !important;
+        }
+        
+        .main-content {
+            background: #f8f9fa;
+            min-height: 100vh;
+            margin-left: 300px;
+            position: relative;
+            padding-top: 80px;
+            transition: margin-left 0.3s ease, width 0.3s ease, max-width 0.3s ease;
+            margin-bottom: 50px; /* space for fixed footer */
+            box-sizing: border-box;
+            width: calc(100% - 300px);
+            max-width: calc(100vw - 300px);
+            overflow-x: hidden;
+        }
+        
+        .main-content.sidebar-collapsed {
+            margin-left: 70px !important;
+            width: calc(100% - 70px) !important;
+            max-width: calc(100vw - 70px) !important;
+        }
+        
+        /* Navbar positioning - consolidated */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 300px;
+            right: 0;
+            width: calc(100vw - 300px);
+            max-width: calc(100% - 300px);
+            z-index: 1001;
+            transition: left 0.3s ease, width 0.3s ease, max-width 0.3s ease !important;
+            box-sizing: border-box;
+        }
+        
+        .navbar.sidebar-collapsed {
+            left: 70px !important;
+            width: calc(100vw - 70px) !important;
+            max-width: calc(100% - 70px) !important;
+        }
+        
+        /* Footer styling */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 300px;
+            width: calc(100vw - 300px);
+            max-width: calc(100% - 300px);
+            height: 40px; /* smaller */
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            z-index: 999;
+            transition: left 0.3s ease, width 0.3s ease, max-width 0.3s ease !important;
+            font-size: 11px; /* smaller text */
+            box-sizing: border-box;
+        }
+        
+        .footer.sidebar-collapsed {
+            left: 70px !important; /* collapsed sidebar width */
+            width: calc(100vw - 70px) !important;
+            max-width: calc(100% - 70px) !important;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding-top: 70px;
+            }
+            
+            .main-content.sidebar-collapsed {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .footer {
+                left: 0;
+                width: 100%;
+            }
+            
+            .footer.sidebar-collapsed {
+                left: 0;
+                width: 100%;
+            }
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            background: white;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+            color: #5a5c69;
+            border: 1px solid #e3e6f0;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+        
+        .stat-card::before,
+        .stat-card::after {
+            display: none !important;
+        }
+        
+        .stat-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stat-card .card-header {
+            display: none;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #5a5c69;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            color: #2c3e50 !important;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #008f4d;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #007a42;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 143, 77, 0.4);
+        }
+        
+        .btn-success {
+            background: #008f4d;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success:hover {
+            background: #007a42;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 143, 77, 0.4);
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(243, 156, 18, 0.4);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(23, 162, 184, 0.4);
+        }
+        
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 11px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .table th {
+            background: #008f4d;
+            color: white;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 16px 12px;
+            position: relative;
+        }
+        
+        .table th::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .table td {
+            border-color: #f1f3f4;
+            vertical-align: middle;
+            padding: 14px 12px;
+            font-weight: 400;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Enhanced Table Styling */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .table-subtitle {
+            font-size: 11px;
+            color: #6c757d;
+            margin: 0.25rem 0 0 0;
+        }
+        
+        .table-description {
+            font-size: 13px;
+            color: #6c757d;
+            margin: 0.5rem 0 0 0;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .table-info {
+            background: #e8f5e8;
+            border: 1px solid #008f4d;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .table-info .info-icon {
+            color: #008f4d;
+            margin-right: 0.5rem;
+        }
+        
+        .table-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            font-size: 13px;
+            color: #6c757d;
+        }
+        
+        .table-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .table-pagination .page-info {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        /* Table Row Styling */
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f0f8f0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 143, 77, 0.1);
+        }
+        
+        /* Table Cell Styling */
+        .table td {
+            position: relative;
+        }
+        
+        .table td:first-child {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Table Search and Filters */
+        .table-filters {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .table-search {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .table-search .form-control {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+        }
+        
+        .table-filters .btn {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 13px;
+        }
+        
+        /* Enhanced Dashboard Table Styling */
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 143, 77, 0.05);
+        }
+        
+        .table-striped tbody tr:nth-of-type(even) {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 143, 77, 0.1) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 143, 77, 0.15);
+        }
+        
+        /* Enhanced Avatar Styling */
+        .avatar-sm {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Enhanced Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-badge i {
+            font-size: 12px;
+        }
+        
+        /* Enhanced Button Groups */
+        .btn-group .btn {
+            border-radius: 6px;
+            margin: 0 1px;
+        }
+        
+        .btn-group .btn:first-child {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        
+        .btn-group .btn:last-child {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        
+        .btn-group .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Simple Table Headers */
+        .table th {
+            background: #008f4d;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 12px 8px;
+            border: none;
+        }
+        
+        .table th:hover {
+            background: #00a85a;
+        }
+        
+        /* Simple Table Cells */
+        .table td {
+            padding: 10px 8px;
+            border-top: 1px solid #e9ecef;
+            font-size: 13px;
+        }
+        
+        /* Transaction Management Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table-responsive table {
+            min-width: 600px;
+            white-space: nowrap;
+        }
+        
+        .table-responsive th,
+        .table-responsive td {
+            white-space: nowrap;
+            min-width: 120px;
+        }
+        
+        .table-responsive .btn-group {
+            white-space: nowrap;
+        }
+        
+        /* Professional Dashboard Cards */
+        .border-left-primary {
+            border-left: 4px solid #007bff !important;
+        }
+        
+        .border-left-success {
+            border-left: 4px solid #28a745 !important;
+        }
+        
+        .border-left-info {
+            border-left: 4px solid #17a2b8 !important;
+        }
+        
+        .border-left-warning {
+            border-left: 4px solid #ffc107 !important;
+        }
+        
+        .border-left-danger {
+            border-left: 4px solid #dc3545 !important;
+        }
+        
+        .text-gray-800 {
+            color: #5a5c69 !important;
+        }
+        
+        .text-xs {
+            font-size: 0.7rem;
+        }
+        
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #4a7c59, #6b9b6b);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #3a6b49, #5a8b5a);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        ::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #2a5b39, #4a7b4a);
+        }
+        
+        /* Sidebar specific scrollbar - Invisible */
+        .sidebar::-webkit-scrollbar,
+        .sidebar-nav::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        .sidebar::-webkit-scrollbar-track,
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb,
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: transparent;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover,
+        .sidebar-nav::-webkit-scrollbar-thumb:hover {
+            background: transparent;
+        }
+        
+        /* Table responsive scrollbar */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #4a7c59, #6b9b6b);
+            border-radius: 4px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(90deg, #3a6b49, #5a8b5a);
+        }
+        
+        /* Firefox scrollbar styling */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #4a7c59 #f1f1f1;
+        }
+        
+        .sidebar {
+            scrollbar-width: none;
+            scrollbar-color: transparent transparent;
+        }
+        
+        /* Enhanced Badges */
+        .badge {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge.fs-6 {
+            font-size: 0.9rem !important;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        /* Enhanced Table Stats */
+        .table-stats {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-top: 2px solid #008f4d;
+        }
+        
+        .table-stats .page-info {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .table-stats .badge {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Comprehensive Responsive Design */
+        
+        /* Mobile First Approach */
+        @media (max-width: 576px) {
+            /* Typography */
+            body {
+                font-size: 12px;
+            }
+            
+            h1 { font-size: 20px; }
+            h2 { font-size: 18px; }
+            h3 { font-size: 16px; }
+            h4 { font-size: 14px; }
+            h5 { font-size: 12px; }
+            h6 { font-size: 11px; }
+            
+            /* Cards */
+            .card {
+                margin-bottom: 1rem;
+                border-radius: 8px;
+                width: 100%;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .card-header {
+                padding: 0.75rem 1rem;
+                font-size: 14px;
+            }
+            
+            /* Statistics Cards - full width on mobile */
+            .stat-card {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            .stat-card .card-body {
+                padding: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 1.4rem;
+            }
+            
+            /* Card grids stack on mobile */
+            .row .col-md-6,
+            .row .col-md-4,
+            .row .col-md-3,
+            .row .col-lg-6,
+            .row .col-lg-4,
+            .row .col-lg-3 {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            /* Tables */
+            .table {
+                font-size: 12px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 6px;
+            }
+            
+            /* Buttons */
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 12px;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 10px;
+            }
+            
+            /* Forms */
+            .form-control,
+            .form-select {
+                font-size: 12px;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .form-label {
+                font-size: 12px;
+            }
+            
+            /* Charts - responsive */
+            .chart-container {
+                height: 250px;
+                width: 100%;
+                position: relative;
+            }
+            
+            .chart-container canvas,
+            .chart-container svg {
+                max-width: 100%;
+                height: auto !important;
+            }
+            
+            .chart-title {
+                font-size: 14px;
+            }
+            
+            .chart-subtitle {
+                font-size: 11px;
+            }
+            
+            /* Table Info */
+            .table-info {
+                padding: 0.5rem 0.75rem;
+                font-size: 11px;
+            }
+            
+            /* Status Badges */
+            .status-badge {
+                padding: 0.2rem 0.5rem;
+                font-size: 9px;
+            }
+            
+            /* Avatar */
+            .avatar-sm {
+                width: 24px !important;
+                height: 24px !important;
+                font-size: 10px !important;
+            }
+        }
+        
+        /* Tablet Responsive */
+        @media (min-width: 577px) and (max-width: 768px) {
+            /* Typography */
+            body {
+                font-size: 13px;
+            }
+            
+            /* Cards */
+            .card-body {
+                padding: 1.25rem;
+            }
+            
+            /* Statistics Cards */
+            .stat-number {
+                font-size: 1.6rem;
+            }
+            
+            /* Tables */
+            .table {
+                font-size: 13px;
+            }
+            
+            /* Charts */
+            .chart-container {
+                height: 300px;
+            }
+            
+            /* Forms */
+            .form-control,
+            .form-select {
+                font-size: 13px;
+            }
+        }
+        
+        /* Desktop Responsive */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            /* Charts */
+            .chart-container {
+                height: 320px;
+            }
+        }
+        
+        /* Large Desktop */
+        @media (min-width: 1025px) {
+            /* Charts */
+            .chart-container {
+                height: 350px;
+            }
+        }
+        
+        /* Responsive Table Enhancements */
+        @media (max-width: 768px) {
+            .table-responsive {
+                border: none;
+                -webkit-overflow-scrolling: touch;
+                overflow-x: auto;
+                display: block;
+                width: 100%;
+            }
+            
+            .table {
+                margin-bottom: 0;
+                width: 100%;
+                min-width: 600px; /* Ensure table doesn't shrink too much */
+            }
+            
+            .table th,
+            .table td {
+                padding: 10px 8px;
+                font-size: 13px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 150px;
+            }
+            
+            .table th {
+                font-size: 12px;
+                font-weight: 600;
+                background-color: #f8f9fa;
+                position: sticky;
+                left: 0;
+                z-index: 1;
+            }
+            
+            /* Make action buttons touch-friendly */
+            .table .btn {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .table .btn-sm {
+                min-width: 40px;
+                min-height: 40px;
+                padding: 6px 10px;
+            }
+            
+            /* Stack table info on mobile */
+            .table-stats {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .table-pagination {
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Card wrapper for tables */
+            .table-card {
+                overflow-x: auto;
+            }
+            
+            /* DataTables wrapper mobile adjustments */
+            .dataTables_wrapper {
+                overflow-x: auto;
+            }
+            
+            .dataTables_wrapper .table {
+                min-width: 600px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .table {
+                min-width: 500px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 6px;
+                max-width: 120px;
+                font-size: 12px;
+            }
+            
+            .table th {
+                font-size: 11px;
+                padding: 8px 6px;
+            }
+            
+            /* Hide less important columns on very small screens */
+            .table .d-none-mobile {
+                display: none !important;
+            }
+            
+            .table .btn,
+            .table .btn-sm {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+            
+            /* Make action buttons stack if needed */
+            .table .btn-group {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+        
+        /* Responsive Form Enhancements */
+        @media (max-width: 768px) {
+            .form-section {
+                margin-bottom: 1.5rem;
+            }
+            
+            .form-section h6 {
+                font-size: 14px;
+                margin-bottom: 1rem;
+            }
+            
+            .form-group,
+            .mb-3 {
+                margin-bottom: 1rem;
+            }
+            
+            /* Full width form inputs on mobile */
+            .form-control,
+            .form-select,
+            .form-check-input {
+                width: 100%;
+                font-size: 16px; /* Prevent zoom on iOS */
+                padding: 12px 16px;
+                min-height: 44px;
+            }
+            
+            /* Select2 mobile optimization */
+            .select2-container {
+                width: 100% !important;
+            }
+            
+            .select2-container .select2-selection--single {
+                height: 44px !important;
+                min-height: 44px;
+            }
+            
+            .select2-container .select2-selection--single .select2-selection__rendered {
+                line-height: 44px !important;
+                padding-left: 16px;
+                padding-right: 20px;
+                font-size: 16px;
+            }
+            
+            .select2-container .select2-selection--single .select2-selection__arrow {
+                height: 44px;
+                right: 8px;
+            }
+            
+            .select2-dropdown {
+                font-size: 16px;
+            }
+            
+            .select2-results__option {
+                padding: 12px 16px;
+                min-height: 44px;
+            }
+            
+            /* Form actions stack vertically */
+            .form-actions,
+            .d-flex.justify-content-between,
+            .d-flex.justify-content-end {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .form-actions .btn,
+            .d-flex.justify-content-between .btn,
+            .d-flex.justify-content-end .btn {
+                width: 100%;
+                min-height: 44px;
+                margin: 0;
+            }
+            
+            /* Form row columns stack on mobile */
+            .row .col-md-6,
+            .row .col-md-4,
+            .row .col-md-3,
+            .row .col-lg-6,
+            .row .col-lg-4 {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .form-section h6 {
+                font-size: 13px;
+            }
+            
+            .form-label {
+                font-size: 14px;
+                margin-bottom: 0.5rem;
+            }
+            
+            .form-control,
+            .form-select {
+                font-size: 16px;
+                padding: 10px 14px;
+            }
+            
+            .form-text {
+                font-size: 12px;
+            }
+            
+            .invalid-feedback {
+                font-size: 12px;
+                display: block;
+            }
+            
+            .form-check-label {
+                font-size: 14px;
+                padding-left: 0.5rem;
+            }
+            
+            .form-check-input {
+                width: 20px;
+                height: 20px;
+                margin-top: 0.25rem;
+            }
+        }
+    
+    /* DataTables Mobile Responsive Styling */
+    @media (max-width: 768px) {
+        /* Hide DataTables default controls on mobile */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            display: none !important;
+        }
+        
+        /* Custom mobile controls */
+        .mobile-dt-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .mobile-dt-controls .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 11px;
+        }
+        
+        /* DataTable container */
+        .dataTables_wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Table styling for mobile */
+        .dataTables_wrapper table {
+            font-size: 12px;
+            min-width: 600px; /* Ensure horizontal scroll */
+        }
+        
+        .dataTables_wrapper table th,
+        .dataTables_wrapper table td {
+            padding: 8px 6px;
+            white-space: nowrap;
+            border: 1px solid #dee2e6;
+        }
+        
+        .dataTables_wrapper table th {
+            background: #008f4d;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .dataTables_wrapper table td {
+            font-size: 11px;
+        }
+        
+        /* Mobile-friendly pagination */
+        .mobile-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .mobile-pagination .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 11px;
+            min-width: 32px;
+        }
+        
+        .mobile-pagination .page-info {
+            font-size: 11px;
+            color: #6c757d;
+        }
+        
+        /* Status badges in tables */
+        .dataTables_wrapper .badge {
+            font-size: 9px;
+            padding: 0.2rem 0.4rem;
+        }
+        
+        /* Action buttons in tables */
+        .dataTables_wrapper .btn-sm {
+            padding: 0.2rem 0.4rem;
+            font-size: 9px;
+        }
+        
+        /* Hide less important columns on very small screens */
+        .dataTables_wrapper .d-none-mobile {
+            display: none !important;
+        }
+        
+        /* Card wrapper for tables */
+        .table-card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table-card .card-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0.75rem 1rem;
+        }
+        
+        .table-card .card-body {
+            padding: 0;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        /* Even more compact for small phones */
+        .dataTables_wrapper table {
+            font-size: 11px;
+            min-width: 500px;
+        }
+        
+        .dataTables_wrapper table th,
+        .dataTables_wrapper table td {
+            padding: 6px 4px;
+        }
+        
+        .dataTables_wrapper table th {
+            font-size: 10px;
+        }
+        
+        .dataTables_wrapper table td {
+            font-size: 10px;
+        }
+        
+        .mobile-dt-controls {
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: center;
+        }
+        
+        .mobile-dt-controls .btn {
+            width: 100%;
+            font-size: 10px;
+        }
+        
+        .mobile-pagination {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        
+        .mobile-pagination .btn {
+            font-size: 10px;
+            padding: 0.2rem 0.4rem;
+            min-width: 28px;
+        }
+        
+        /* Hide more columns on very small screens */
+        .dataTables_wrapper .hide-mobile {
+            display: none !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        /* Ultra-compact for very small phones */
+        .dataTables_wrapper table {
+            min-width: 400px;
+            font-size: 10px;
+        }
+        
+        .dataTables_wrapper table th,
+        .dataTables_wrapper table td {
+            padding: 4px 3px;
+        }
+        
+        .dataTables_wrapper table th {
+            font-size: 9px;
+        }
+        
+        .dataTables_wrapper table td {
+            font-size: 9px;
+        }
+        
+        .mobile-dt-controls .btn {
+            font-size: 9px;
+            padding: 0.2rem 0.3rem;
+        }
+        
+        .mobile-pagination .btn {
+            font-size: 9px;
+            padding: 0.15rem 0.3rem;
+            min-width: 24px;
+        }
+    }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+        
+        /* Enhanced Chart Styling */
+        .chart-container canvas {
+            border-radius: 8px;
+        }
+        
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .chart-subtitle {
+            font-size: 11px;
+            color: #6c757d;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Chart Legend Styling */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* Chart Tooltip Styling */
+        .chartjs-tooltip {
+            background: rgba(0, 0, 0, 0.9) !important;
+            border: 1px solid #008f4d !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            font-size: 11px;
+            padding: 12px 16px;
+            font-weight: 400;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #008f4d;
+            box-shadow: 0 0 0 0.25rem rgba(0, 143, 77, 0.15);
+            outline: none;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            font-size: 11px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        
+        .card-header {
+            background: #008f4d;
+            color: white;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 18px 20px;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .card-header h5, .card-header h6 {
+            color: white;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .badge {
+            font-size: 11px;
+            padding: 6px 12px;
+            font-weight: 500;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 16px 20px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #008f4d;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.3px;
+        }
+        
+        .main-content h1, .main-content h2, .main-content h3, 
+        .main-content h4, .main-content h5, .main-content h6 {
+            color: #2c3e50;
+        }
+        
+        /* Navbar styles - consolidated above, removing duplicate */
+        
+        /* Sidebar Toggle Button */
+        .sidebar-toggle-btn {
+            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+            color: #495057;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-toggle-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            color: #212529;
+        }
+        
+        .sidebar-toggle-btn:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 143, 77, 0.25);
+        }
+        
+        /* Member Search Styling */
+        .member-search-container {
+            position: relative;
+        }
+        
+        .member-search-container .form-control {
+            border-radius: 20px;
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        
+        .member-search-container .form-control:focus {
+            border-color: #4a7c59;
+            box-shadow: 0 0 0 0.2rem rgba(74, 124, 89, 0.25);
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: 4px;
+        }
+        
+        .search-result-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-item .member-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+        
+        .search-result-item .member-details {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .search-no-results {
+            padding: 16px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        /* Navbar collapsed state - consolidated above */
+        
+        @media (max-width: 768px) {
+            .navbar {
+                left: 0;
+                width: 100%;
+                padding: 0.5rem 0;
+            }
+            
+            .navbar.sidebar-collapsed {
+                left: 0;
+                width: 100%;
+            }
+            
+            .navbar .container-fluid {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+                flex-wrap: wrap;
+            }
+            
+            /* Hide search and clock on mobile when navbar is collapsed */
+            .navbar:not(.navbar-expanded) .member-search-container,
+            .navbar:not(.navbar-expanded) .navbar-clock {
+                display: none;
+            }
+            
+            /* Make navbar toggle button larger for touch */
+            .sidebar-toggle-btn {
+                padding: 10px 14px;
+                min-width: 44px;
+                min-height: 44px;
+            }
+            
+            /* Stack navbar items vertically */
+            .navbar-nav {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+            
+            .navbar-nav .nav-item {
+                width: 100%;
+                margin-bottom: 0.25rem;
+            }
+            
+            .navbar-nav .nav-link {
+                padding: 12px 16px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            /* Profile dropdown - stack name and role on mobile */
+            .navbar-nav .nav-item.dropdown .nav-link {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .navbar-nav .nav-item.dropdown .nav-link .d-flex {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
+            
+            .navbar-nav .nav-item.dropdown .nav-link .fw-bold {
+                margin-bottom: 2px;
+            }
+            
+            /* Notification dropdown full width on mobile */
+            .notification-dropdown {
+                width: calc(100vw - 2rem) !important;
+                max-width: calc(100vw - 2rem) !important;
+                left: 1rem !important;
+                right: 1rem !important;
+                max-height: calc(100vh - 120px) !important;
+            }
+            
+            /* Profile dropdown full width on mobile */
+            .navbar-nav .nav-item.dropdown .dropdown-menu {
+                width: calc(100vw - 2rem) !important;
+                max-width: calc(100vw - 2rem) !important;
+                left: 1rem !important;
+                right: 1rem !important;
+            }
+            
+            /* All dropdowns mobile optimization */
+            .dropdown-menu {
+                max-width: calc(100vw - 2rem);
+                font-size: 14px;
+            }
+            
+            .dropdown-item {
+                padding: 14px 16px;
+                min-height: 44px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar .container-fluid {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            
+            .sidebar-toggle-btn {
+                padding: 8px 12px;
+                min-width: 40px;
+                min-height: 40px;
+            }
+            
+            .navbar-nav .nav-link {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            
+            .notification-dropdown,
+            .navbar-nav .nav-item.dropdown .dropdown-menu {
+                width: calc(100vw - 1rem) !important;
+                max-width: calc(100vw - 1rem) !important;
+                left: 0.5rem !important;
+                right: 0.5rem !important;
+            }
+            
+            .notification-dropdown {
+                max-height: calc(100vh - 100px) !important;
+            }
+            
+            .dropdown-item {
+                padding: 12px 14px;
+                min-height: 44px;
+                font-size: 13px;
+            }
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: #008f4d !important;
+            font-size: 18px;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar-nav .nav-link {
+            color: #2c3e50 !important;
+            font-weight: 500;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: #008f4d !important;
+            background-color: rgba(0, 143, 77, 0.1);
+        }
+        
+        /* Live Clock Styles */
+        .navbar-clock {
+            background: rgba(0, 143, 77, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 143, 77, 0.2);
+            font-size: 13px;
+            min-width: 140px;
+            text-align: center;
+        }
+        
+        .navbar-clock i {
+            font-size: 14px;
+        }
+        
+        .navbar-clock #liveClock {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-clock {
+                min-width: 120px;
+                font-size: 11px;
+            }
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border-radius: 12px;
+            padding: 8px 0;
+        }
+        
+        .dropdown-item {
+            font-size: 11px;
+            padding: 12px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(0, 143, 77, 0.1);
+            color: #008f4d;
+            transform: translateX(4px);
+        }
+        
+        .notification-dropdown {
+            width: 380px;
+            max-height: 500px;
+            overflow-y: auto;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            padding: 0;
+        }
+        
+        /* Modal Responsiveness */
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 0.5rem;
+                max-width: calc(100% - 1rem);
+            }
+            
+            .modal-content {
+                border-radius: 12px;
+                border: none;
+            }
+            
+            .modal-header {
+                padding: 1rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            .modal-title {
+                font-size: 18px;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+                max-height: calc(100vh - 200px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .modal-footer {
+                padding: 1rem;
+                border-top: 1px solid #dee2e6;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .modal-footer .btn {
+                width: 100%;
+                min-height: 44px;
+                margin: 0;
+            }
+            
+            /* Ensure modals don't cause horizontal scroll */
+            .modal {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .modal-dialog {
+                margin: 0.25rem;
+                max-width: calc(100% - 0.5rem);
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 0.75rem;
+            }
+            
+            .modal-title {
+                font-size: 16px;
+            }
+        }
+        
+        /* Card Grid Responsiveness */
+        @media (max-width: 768px) {
+            /* Stack card columns on mobile */
+            .row .col-md-6,
+            .row .col-md-4,
+            .row .col-md-3,
+            .row .col-lg-6,
+            .row .col-lg-4,
+            .row .col-lg-3 {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            /* Stat cards full width */
+            .stat-card {
+                width: 100%;
+            }
+        }
+        
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .notification-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(2px);
+        }
+        
+        .notification-item.unread {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+            border-left: 4px solid #4a7c59;
+        }
+        
+        .notification-item.unread:hover {
+            background: linear-gradient(135deg, #e1f5fe 0%, #f0f8ff 100%);
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+        
+        .notification-icon.loan_approval {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+        }
+        
+        .notification-icon.loan_rejection {
+            background: linear-gradient(135deg, #f44336, #ef5350);
+            color: white;
+        }
+        
+        .notification-icon.loan_disbursement {
+            background: linear-gradient(135deg, #2196f3, #42a5f5);
+            color: white;
+        }
+        
+        .notification-icon.savings_deposit {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+        }
+        
+        .notification-icon.savings_withdrawal {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            color: white;
+        }
+        
+        .notification-icon.member_registration {
+            background: linear-gradient(135deg, #9c27b0, #ba68c8);
+            color: white;
+        }
+        
+        .notification-icon.payment_reminder {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            color: white;
+        }
+        
+        .notification-icon.loan_overdue {
+            background: linear-gradient(135deg, #f44336, #ef5350);
+            color: white;
+        }
+        
+        .notification-icon.system_alert {
+            background: linear-gradient(135deg, #607d8b, #90a4ae);
+            color: white;
+        }
+        
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        
+        .notification-message {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .notification-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #888;
+        }
+        
+        .notification-time {
+            font-weight: 500;
+        }
+        
+        .notification-priority {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .priority-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .priority-critical {
+            background: #fce4ec;
+            color: #ad1457;
+        }
+        
+        .priority-medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .priority-low {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .notification-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .notification-item:hover .notification-actions {
+            opacity: 1;
+        }
+        
+        .notification-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .notification-action-btn:hover {
+            background: rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+        
+        .notification-header {
+            background: linear-gradient(135deg, #4a7c59, #5a8c69);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .notification-header h6 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .notification-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .notification-footer {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border-radius: 0 0 12px 12px;
+            text-align: center;
+        }
+        
+        .notification-footer a {
+            color: #4a7c59;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .notification-footer a:hover {
+            color: #3a6b49;
+        }
+        
+        .notification-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+        
+        .notification-empty i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 16px;
+        }
+        
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-item .flex-shrink-0 i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .badge {
+            font-size: 11px;
+            padding: 2px 6px;
+        }
+        
+        .sidebar-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #ffffff;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-nav {
+            overflow-y: auto;
+            flex: 1;
+            padding: 0 15px 15px 15px;
+        }
+        
+        .sidebar-logo {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 20px;
+            background: #ffffff;
+        }
+        
+        .logo-icon {
+            width: 90px;
+            height: 90px;
+            background: transparent;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+        
+        .logo-icon i {
+            font-size: 24px;
+            color: white;
+        }
+        
+        .text-white-50 {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        h1 { font-size: 26px; font-weight: 700; }
+        h2 { font-size: 22px; font-weight: 600; }
+        h3 { font-size: 18px; font-weight: 600; }
+        h4 { font-size: 16px; font-weight: 600; }
+        h5 { font-size: 14px; font-weight: 600; }
+        h6 { font-size: 13px; font-weight: 600; }
+        
+        .text-primary { color: #008f4d !important; }
+        .text-success { color: #008f4d !important; }
+        .text-warning { color: #f39c12 !important; }
+        .text-danger { color: #e74c3c !important; }
+        .text-info { color: #17a2b8 !important; }
+        
+        .bg-primary { background-color: #008f4d !important; }
+        .bg-success { background-color: #008f4d !important; }
+        .bg-warning { background-color: #f39c12 !important; }
+        .bg-danger { background-color: #e74c3c !important; }
+        .bg-info { background-color: #17a2b8 !important; }
+        
+        .border-primary { border-color: #008f4d !important; }
+        .border-success { border-color: #008f4d !important; }
+        .border-warning { border-color: #f39c12 !important; }
+        .border-danger { border-color: #e74c3c !important; }
+        .border-info { border-color: #17a2b8 !important; }
+        
+        /* Additional improvements for better UX */
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .text-muted {
+            color: #6c757d !important;
+            font-weight: 400;
+        }
+        
+        .small {
+            font-size: 13px;
+            font-weight: 400;
+        }
+        
+        /* Improved focus states for accessibility */
+        .btn:focus, .form-control:focus, .form-select:focus {
+            outline: 2px solid #008f4d;
+            outline-offset: 2px;
+        }
+        
+        /* Better spacing for content */
+        .mb-4 {
+            margin-bottom: 2rem !important;
+        }
+        
+        .mt-4 {
+            margin-top: 2rem !important;
+        }
+        
+        /* Improved card body padding */
+        .card-body {
+            padding: 24px;
+        }
+        
+        /* Enhanced Form Styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-floating {
+            position: relative;
+        }
+        
+        .form-floating > .form-control,
+        .form-floating > .form-select {
+            height: calc(3.5rem + 2px);
+            line-height: 1.25;
+            padding: 1rem 0.75rem;
+        }
+        
+        .form-floating > label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            padding: 1rem 0.75rem;
+            pointer-events: none;
+            border: 1px solid transparent;
+            transform-origin: 0 0;
+            transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+        }
+        
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-select ~ label {
+            opacity: 0.65;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+        
+        /* Enhanced form controls */
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            font-size: 13px;
+            padding: 12px 16px;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #008f4d;
+            box-shadow: 0 0 0 0.25rem rgba(0, 143, 77, 0.15);
+            outline: none;
+            background-color: #fff;
+        }
+        
+        .form-control:hover, .form-select:hover {
+            border-color: #008f4d;
+        }
+        
+        /* Form labels */
+        .form-label {
+            font-weight: 600;
+            font-size: 11px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        
+        /* Form validation styles */
+        .form-control.is-valid {
+            border-color: #008f4d;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23008f4d' d='m2.3 6.73.94-.94 1.88-1.88'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .form-control.is-invalid {
+            border-color: #e74c3c;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23e74c3c'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.5 5.5 1 1 1-1'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .valid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #008f4d;
+        }
+        
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #e74c3c;
+        }
+        
+        /* Form help text */
+        .form-text {
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #6c757d;
+        }
+        
+        /* File input styling */
+        .form-control[type="file"] {
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .form-control[type="file"]:focus {
+            box-shadow: 0 0 0 0.25rem rgba(0, 143, 77, 0.15);
+        }
+        
+        /* Textarea styling */
+        .form-control[rows] {
+            min-height: calc(1.5em + 0.75rem + 2px);
+        }
+        
+        /* Checkbox and radio styling */
+        .form-check {
+            display: block;
+            min-height: 1.5rem;
+            padding-left: 1.5em;
+            margin-bottom: 0.125rem;
+        }
+        
+        .form-check-input {
+            width: 1em;
+            height: 1em;
+            margin-top: 0.25em;
+            vertical-align: top;
+            background-color: #fff;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            appearance: none;
+            color-adjust: exact;
+        }
+        
+        .form-check-input[type="checkbox"] {
+            border-radius: 0.25em;
+        }
+        
+        .form-check-input[type="radio"] {
+            border-radius: 50%;
+        }
+        
+        .form-check-input:checked {
+            background-color: #008f4d;
+            border-color: #008f4d;
+        }
+        
+        .form-check-input:focus {
+            border-color: #008f4d;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(0, 143, 77, 0.25);
+        }
+        
+        .form-check-label {
+            color: #2c3e50;
+            cursor: pointer;
+        }
+        
+        /* Form section styling */
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-section h6 {
+            color: #008f4d;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border: none;
+        }
+        
+        /* Form row spacing */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -5px;
+            margin-left: -5px;
+        }
+        
+        .form-row > .col,
+        .form-row > [class*="col-"] {
+            padding-right: 5px;
+            padding-left: 5px;
+        }
+        
+        /* Required field indicator */
+        .required {
+            color: #e74c3c;
+        }
+        
+        /* Form button styling */
+        .form-actions {
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 1.5rem;
+            margin: 1.5rem -1.5rem -1.5rem -1.5rem;
+            border-radius: 0 0 12px 12px;
+        }
+        
+        /* Form loading state */
+        .form-loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .form-loading .btn {
+            position: relative;
+        }
+        
+        .form-loading .btn::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive behavior for mobile */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 300px;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding-top: 70px;
+            }
+            
+            .navbar {
+                left: 0;
+                width: 100%;
+            }
+            
+            .sidebar-collapse-btn {
+                display: none;
+            }
+        }
+        
+        /* Sidebar toggle button for mobile */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: #008f4d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+        
+        /* Sidebar collapse/expand button */
+        .sidebar-collapse-btn {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .sidebar-collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .sidebar.collapsed .sidebar-collapse-btn {
+            right: 8px;
+            top: 8px;
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+        
+        /* Professional Dashboard Styling - Reduce Green Colors */
+        .card {
+            border: 1px solid #e3e6f0 !important;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc !important;
+            border-bottom: 1px solid #e3e6f0 !important;
+            color: #5a5c69 !important;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%) !important;
+            border: 1px solid #e3e6f0 !important;
+        }
+        
+        .stat-card .stat-number {
+            color: #5a5c69 !important;
+            font-weight: 700 !important;
+        }
+        
+        /* Professional Color Scheme */
+        .text-primary {
+            color: #4e73df !important;
+        }
+        
+        .text-info {
+            color: #36b9cc !important;
+        }
+        
+        .text-warning {
+            color: #f6c23e !important;
+        }
+        
+        .text-success {
+            color: #1cc88a !important;
+        }
+        
+        .bg-primary {
+            background-color: #4e73df !important;
+        }
+        
+        .bg-info {
+            background-color: #36b9cc !important;
+        }
+        
+        .bg-warning {
+            background-color: #f6c23e !important;
+        }
+        
+        .bg-success {
+            background-color: #4a7c59 !important;
+        }
+        
+        /* Professional Button Styling */
+        .btn-primary {
+            background-color: #4a7c59 !important;
+            border-color: #4a7c59 !important;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a6b4a !important;
+            border-color: #3a6b4a !important;
+        }
+        
+        .btn-outline-primary {
+            color: #4a7c59 !important;
+            border-color: #4a7c59 !important;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #4a7c59 !important;
+            border-color: #4a7c59 !important;
+        }
+        
+        /* Select2 Custom Styling */
+        .select2-container--bootstrap-5 .select2-selection {
+            border: 2px solid #e9ecef !important;
+            border-radius: 8px !important;
+            min-height: 38px !important;
+            font-size: 13px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection:hover {
+            border-color: #008f4d !important;
+        }
+        
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection {
+            border-color: #008f4d !important;
+            box-shadow: 0 0 0 0.25rem rgba(0, 143, 77, 0.15) !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single {
+            height: 38px !important;
+            line-height: 36px !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            padding-left: 12px !important;
+            padding-right: 20px !important;
+            color: #2c3e50 !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+            height: 36px !important;
+            right: 8px !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-results__option {
+            padding: 8px 12px !important;
+            font-size: 13px !important;
+            color: #2c3e50 !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-results__option--highlighted {
+            background-color: #008f4d !important;
+            color: white !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-results__option--selected {
+            background-color: #f8f9fa !important;
+            color: #008f4d !important;
+            font-weight: 600 !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 6px !important;
+            padding: 6px 8px !important;
+            font-size: 13px !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field:focus {
+            border-color: #008f4d !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 143, 77, 0.25) !important;
+        }
+        
+        /* Select2 loading state */
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__placeholder {
+            color: #6c757d !important;
+            font-style: italic !important;
+        }
+        
+        /* Select2 clear button */
+        .select2-container--bootstrap-5 .select2-selection__clear {
+            color: #6c757d !important;
+            font-size: 16px !important;
+            line-height: 36px !important;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection__clear:hover {
+            color: #e74c3c !important;
+        }
+        
+        /* Responsive Select2 */
+        @media (max-width: 768px) {
+            .select2-container--bootstrap-5 .select2-dropdown {
+                font-size: 12px !important;
+            }
+            
+            .select2-container--bootstrap-5 .select2-results__option {
+                padding: 6px 10px !important;
+                font-size: 12px !important;
+            }
+        }
+        
+        /* Member option styling for Select2 */
+        .member-option {
+            padding: 4px 0;
+        }
+        
+        .member-option .member-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+        
+        .member-option .member-details {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        /* Enhanced Search Results Styling */
+        .search-loading {
+            padding: 16px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .search-loading i {
+            margin-right: 8px;
+            animation: spin 1s linear infinite;
+        }
+        
+        .search-error {
+            padding: 16px;
+            text-align: center;
+            color: #e74c3c;
+            font-weight: 500;
+        }
+        
+        .search-no-results {
+            padding: 16px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .search-no-results i {
+            margin-right: 8px;
+            color: #adb5bd;
+        }
+        
+        .search-result-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .search-result-item:hover,
+        .search-result-item.highlighted {
+            background-color: #f8f9fa;
+            transform: translateX(2px);
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #008f4d, #4a7c59);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .search-result-item .member-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .search-result-item .member-details {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        
+        .search-result-item .member-number {
+            font-weight: 600;
+            color: #008f4d;
+        }
+        
+        .search-result-item .member-extra-info {
+            margin-top: 2px;
+            font-size: 11px;
+        }
+        
+        .search-result-item .member-status {
+            margin-top: 4px;
+        }
+        
+        .search-result-item .status-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .search-result-item .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .search-result-item .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .search-result-item .status-suspended {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Search Results Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .search-result-item {
+            animation: fadeInUp 0.2s ease-out;
+        }
+        
+        /* Mobile Search Results */
+        @media (max-width: 768px) {
+            .search-result-item {
+                padding: 10px 12px;
+            }
+            
+            .member-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .search-result-item .member-name {
+                font-size: 13px;
+            }
+            
+            .search-result-item .member-details {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Toggle Button for Mobile -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class='bx bx-menu'></i>
+    </button>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebar">
+                <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Collapse/Expand Sidebar">
+                    <i class='bx bx-chevron-left' id="collapse-icon"></i>
+                </button>
+                <div class="sidebar-header pt-3">
+                    <div class="text-center mb-4">
+                        <div class="sidebar-logo mb-3">
+                            <div class="logo-icon">
+                                <img src="{% static 'images/UMSC LOGO.png' %}" alt="UMSC Logo" style="width: 90px; height: 90px; object-fit: contain;">
+                            </div>
+                        </div>
+                        <h4 class="text-dark mb-1" style="font-size: 16px; font-weight: 700;">
+                            {% if user.is_system_admin %}
+                                UMSC Women Sacco
+                            {% else %}
+                                {{ user.sacco.name }}
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted mb-0" style="font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Muslim Women Voice Kampala 
+                        </p>
+                     </div>
+                </div>
+                <div class="sidebar-nav">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                                <i class='bx bx-home-alt-2'></i> <span>Dashboard</span>
+                            </a>
+                        </li>
+                        
+                        <!-- Muslim Regions Navigation - System Admin Only -->
+                        {% if user.is_system_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#muslimRegionsCollapse" role="button">
+                                <i class='bx bx-map'></i> <span>Muslim Regions</span>
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="muslimRegionsCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    {% for region in all_regions %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'region_detail' and request.resolver_match.kwargs.region_id == region.id %}active{% endif %}" href="{% url 'region_detail' region_id=region.id %}">
+                                            {{ region.name }}
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <li class="nav-item">
+                                        <span class="nav-link text-muted">No regions available</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- System Admin Navigation -->
+                        {% if user.is_system_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#systemAdminCollapse" role="button">
+                                <i class='bx bx-shield'></i> <span>System Administration</span>
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="systemAdminCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'regional_overview' in request.resolver_match.url_name or 'region_detail' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'regional_overview' %}">Regional Overview</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'create_sacco' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'create_sacco' %}">Create Sacco</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'manage_regions' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'manage_regions' %}">Manage Regions</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'manage_regional_admins' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'manage_regional_admins' %}">Regional Admins</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'manage_saccos' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'manage_saccos' %}">Manage Saccos</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/" target="_blank">
+                                            <i class='bx bx-user-cog me-2'></i>User Management
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'documents_update' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'documents_update' %}">
+                                            <i class='bx bx-file-plus me-2'></i>Documents Update
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'activity_logs' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'activity_logs' %}">Activity Logs</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Regional Admin Navigation -->
+                        {% if user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'regional_admin_dashboard' %}active{% endif %}" href="{% url 'regional_admin_dashboard' %}">
+                                <i class='bx bx-map'></i> <span>Regional Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#regionalAdminCollapse" role="button">
+                                <i class='bx bx-shield-alt'></i> <span>Regional Management</span>
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="regionalAdminCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'create_sacco' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'create_sacco' %}">Create Sacco</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'regional_manage_saccos' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'regional_manage_saccos' %}">Manage Saccos</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'activity_logs' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'activity_logs' %}">Activity Logs</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Sacco Admin and System Admin Navigation -->
+                        {% if user.is_sacco_admin or user.is_system_admin or user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#membersCollapse" role="button">
+                                <i class='bx bx-group'></i> <span>Sacco Members</span>
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="membersCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    {% if user.is_system_admin or user.is_regional_admin %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'members_overview' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'members_overview' %}">Members Overview</a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'register' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'register_member' %}">Register Member</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'member_list' in request.resolver_match.url_name or 'member_profile' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'member_list' %}">Member Profiles</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'member_groups' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'member_groups' %}">Member Groups</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'inactive' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'inactive_members' %}">Inactive Members</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Sacco Admin, Regional Admin and System Admin Navigation -->
+                        {% if user.is_sacco_admin or user.is_system_admin or user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#savingsCollapse" role="button">
+                                <i class='bx bx-wallet'></i> Savings
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="savingsCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    {% if user.is_system_admin or user.is_regional_admin %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'savings_overview' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'savings_overview' %}">Savings Overview</a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'savings_accounts' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'savings_accounts' %}">Savings Accounts</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'create_savings_account' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'create_savings_account' %}">Create Account</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'add_savings_transaction' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'add_savings_transaction' %}">Add Transaction</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'savings_statements' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'savings_statements' %}">Statements</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'saving_products' in request.resolver_match.url_name or 'create_saving_product' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'saving_products' %}">Saving Products</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Sacco Admin, Regional Admin and System Admin Navigation -->
+                        {% if user.is_sacco_admin or user.is_system_admin or user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#loansCollapse" role="button">
+                                <i class='bx bx-credit-card'></i> Loan Management
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="loansCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    {% if user.is_system_admin or user.is_regional_admin %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'loans_overview' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loans_overview' %}">Loans Overview</a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'add_loan' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'add_loan' %}">Add Loan</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'view_all_loans' in request.resolver_match.url_name or 'loan_profile' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'view_all_loans' %}">View All Loans</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'loan_statistics' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loan_statistics' %}">Loan Statistics</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'all_borrowers' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'all_borrowers' %}">All Borrowers</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'pending_approval' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'pending_approval' %}">Pending Approval</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'pending_disbursement' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'pending_disbursement' %}">Pending Disbursement</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'loans_declined' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loans_declined' %}">Loans Declined</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'loans_withdrawn' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loans_withdrawn' %}">Loans Withdrawn</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'loans_written_off' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loans_written_off' %}">Loans Written off</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'loans_closed' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loans_closed' %}">Loans closed</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'loans_approved' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loans_approved' %}">Loans Approved</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'disbursed_loans' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'disbursed_loans' %}">Disbursed Loans</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'repayments' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'repayments' %}">Repayments</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'manage_loan_products' in request.resolver_match.url_name or 'create_loan_product' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'manage_loan_products' %}">Manage Loan Products</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Sacco Admin, Regional Admin and System Admin Navigation -->
+                        {% if user.is_sacco_admin or user.is_system_admin or user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#fundingCollapse" role="button">
+                                <i class='bx bx-money'></i> Received Funding
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="fundingCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    {% if user.is_system_admin or user.is_regional_admin %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'funding_overview' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'funding_overview' %}">Funding Overview</a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'funding_list' in request.resolver_match.url_name or 'add_funding' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'funding_list' %}">Funding Management</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'funds_allocation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'funds_allocation' %}">Funds Allocation</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'enhanced_funds_allocation' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'enhanced_funds_allocation' %}">Enhanced Allocation</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'expenditure_logs' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'expenditure_logs' %}">Expenditure Logs</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'funding_sources' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'funding_sources' %}">Funding Sources</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Sacco Admin, Regional Admin and System Admin Navigation -->
+                        {% if user.is_sacco_admin or user.is_system_admin or user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#projectsCollapse" role="button">
+                                <i class='bx bx-folder'></i> Project Management
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="projectsCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    {% if user.is_system_admin or user.is_regional_admin %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'projects_overview' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'projects_overview' %}">Projects Overview</a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'add_project' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'add_project' %}">Add Project</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'existing_projects' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'existing_projects' %}">Existing Projects</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Sacco Admin, Regional Admin and System Admin Navigation -->
+                        {% if user.is_sacco_admin or user.is_system_admin or user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#expensesCollapse" role="button">
+                                <i class='bx bx-receipt'></i> All Expenses
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="expensesCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    {% if user.is_system_admin or user.is_regional_admin %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'expenses_overview' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'expenses_overview' %}">Expenses Overview</a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'expenses_list' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'expenses_list' %}">All Expenses</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'add_expense' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'add_expense' %}">Add Expense</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'enhanced_expenditure_logs' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'enhanced_expenditure_logs' %}">Enhanced Logs</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'expense_settings' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'expense_settings' %}">Settings</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Sacco Admin, Regional Admin and System Admin Navigation -->
+                        {% if user.is_sacco_admin or user.is_system_admin or user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'reports_performance' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'reports_performance' %}">
+                                <i class='bx bx-target-lock'></i> Performance Review
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#reportsCollapse" role="button">
+                                <i class='bx bx-bar-chart'></i> Reporting
+                                <i class='bx bx-chevron-down float-end'></i>
+                            </a>
+                            <div class="collapse" id="reportsCollapse">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'loan_report' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loan_report' %}">Loan Report</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'member_report' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'member_report' %}">Member Report</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if 'funding_report' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'funding_report' %}">Funding Report</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Member Navigation - Only for regular members (not admins) -->
+                        {% if not user.is_sacco_admin and not user.is_system_admin and not user.is_regional_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'member_dashboard' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'member_dashboard' %}">
+                                <i class='bx bx-user'></i> <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class='bx bx-wallet'></i> <span>My Savings</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class='bx bx-credit-card'></i> <span>My Loans</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class='bx bx-receipt'></i> <span>My Statements</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- System Admin Only -->
+                        {% if user.is_system_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class='bx bx-cog'></i> Administration
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <li class="nav-item mt-4">
+                            <a class="nav-link text-danger" href="{% url 'logout' %}">
+                                <i class='bx bx-log-out'></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <!-- Sidebar backdrop for mobile -->
+            <div class="sidebar-backdrop" onclick="closeSidebarOnMobile()"></div>
+            
+            <!-- Main content -->
+            <main class="main-content" id="main-content">
+                <!-- Full Width Navbar -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                    <div class="container-fluid px-4">
+                        <!-- Sidebar Toggle Button -->
+                        <button class="btn btn-outline-secondary me-3 sidebar-toggle-btn" onclick="toggleSidebarCollapse()" id="sidebar-toggle">
+                            <i class='bx bx-menu' id="collapse-icon"></i>
+                        </button>
+                        
+                        <!-- Brand Logo -->
+                        
+                        <!-- Member Search - Only visible to Sacco Admin, Regional Admin, and System Admin -->
+                        {% if user.is_sacco_admin or user.is_regional_admin or user.is_system_admin %}
+                        <div class="member-search-container me-3 flex-grow-1" style="max-width: 400px;">
+                            <div class="position-relative">
+                                <input type="text" class="form-control" id="memberSearch" placeholder="Search members..." autocomplete="off">
+                                <div class="search-results dropdown-menu w-100" id="searchResults" style="display: none; max-height: 300px; overflow-y: auto;">
+                                    <!-- Search results will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Live Clock -->
+                        <div class="navbar-clock me-3 d-flex align-items-center">
+                            <i class='bx bx-time me-2 text-primary'></i>
+                            <span id="liveClock" class="fw-bold text-dark">Loading...</span>
+                        </div>
+                        <script>
+                            // Immediate clock update
+                            (function() {
+                                const now = new Date();
+                                const timeString = now.toLocaleTimeString('en-US', {
+                                    hour12: true,
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit'
+                                });
+                                const dateString = now.toLocaleDateString('en-US', {
+                                    weekday: 'short',
+                                    month: 'short',
+                                    day: 'numeric'
+                                });
+                                const clockElement = document.getElementById('liveClock');
+                                if (clockElement) {
+                                    clockElement.innerHTML = `${timeString} <small class="text-muted">${dateString}</small>`;
+                                }
+                            })();
+                        </script>
+                        
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav ms-auto align-items-center">
+                                <!-- Notifications -->
+                                <li class="nav-item dropdown me-3">
+                                    <a class="nav-link dropdown-toggle position-relative d-flex align-items-center" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
+                                        <i class='bx bx-bell'></i>
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" style="display: none;">
+                                            0
+                                            <span class="visually-hidden">unread notifications</span>
+                                        </span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
+                                        <li class="notification-header">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-0">
+                                                    <i class='bx bx-bell me-2'></i>Notifications
+                                                </h6>
+                                                <span class="notification-count" id="notification-count">0</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <button class="btn btn-sm btn-outline-light" onclick="markAllAsRead()">
+                                                    <i class='bx bx-check-all me-1'></i>Mark all read
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-light" onclick="refreshNotifications()">
+                                                    <i class='bx bx-refresh me-1'></i>Refresh
+                                                </button>
+                                            </div>
+                                        </li>
+                                        <li class="notifications-container">
+                                            <!-- Notifications will be loaded dynamically here -->
+                                            <div class="notification-empty">
+                                                <i class='bx bx-loader-alt bx-spin'></i>
+                                                <div>Loading notifications...</div>
+                                            </div>
+                                        </li>
+                                        <li class="notification-footer">
+                                            <a href="{% url 'notification_list' %}" class="d-flex align-items-center justify-content-center">
+                                                <i class='bx bx-list-ul me-2'></i>View All Notifications
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                
+                                <!-- User Menu -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                        <i class='bx bx-user-circle me-2'></i>
+                                        <div class="d-flex align-items-center">
+                                            <span class="fw-bold me-2">{{ user.get_full_name|default:user.username }}</span>
+                                            <small class="text-muted">
+                                                {% if user.is_system_admin %}
+                                                    System Admin
+                                                {% elif user.is_regional_admin %}
+                                                    Regional Admin
+                                                {% elif user.is_sacco_admin %}
+                                                    Sacco Admin
+                                                {% else %}
+                                                    Member
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="{% url 'user_profile' %}"><i class='bx bx-user'></i> Profile</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class='bx bx-cog'></i> Settings</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class='bx bx-log-out'></i> Logout</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                
+                <div class="px-4 pt-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <!-- Page Header with Title and Breadcrumbs -->
+                <div class="page-header mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                    </div>
+                    <div class="breadcrumb-container">
+                        {% block breadcrumbs %}{% endblock %}
+                    </div>
+                </div>
+                
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </main>
+            
+            <!-- Fixed Footer -->
+            <footer class="footer">
+                <div class="container-fluid px-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                &copy; 2024 UMSC Sacco Management System. All rights reserved.
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Input Mask Library -->
+    <script src="https://cdn.jsdelivr.net/npm/inputmask@5.0.8/dist/inputmask.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- DataTables Buttons JS -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <script>
+        // Live Clock Function
+        function updateClock() {
+            try {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour12: true,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                const dateString = now.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                const clockElement = document.getElementById('liveClock');
+                console.log('Looking for clock element:', clockElement);
+                
+                if (clockElement) {
+                    clockElement.innerHTML = `${timeString} <small class="text-muted">${dateString}</small>`;
+                    console.log('Clock updated successfully');
+                } else {
+                    console.log('Clock element not found, trying again...');
+                    // Try to find it again
+                    setTimeout(updateClock, 500);
+                }
+            } catch (error) {
+                console.error('Clock update error:', error);
+            }
+        }
+        
+        // Initialize clock when page loads
+        window.addEventListener('load', function() {
+            console.log('Window loaded, starting clock');
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
+        
+        // Also try with DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, trying clock');
+            updateClock();
+        });
+        
+        // DataTables initialization is handled below in the main initialization block
+
+        // Initialize phone number input masks
+        function initializePhoneMasks() {
+            // Ugandan phone number format: +256 XXX XXX XXX or 0XXX XXX XXX
+            Inputmask({
+                mask: ["+256 999 999 999", "0999 999 999"],
+                greedy: false,
+                placeholder: "Phone number",
+                showMaskOnHover: false,
+                showMaskOnFocus: true
+            }).mask('.phone-mask');
+            
+            // Simple phone format for basic inputs
+            Inputmask({
+                mask: "999 999 999",
+                placeholder: "Phone",
+                showMaskOnHover: false,
+                showMaskOnFocus: true
+            }).mask('.phone-simple');
+        }
+
+        // Re-initialize phone masks when new content is added (for modals, AJAX content, etc.)
+        $(document).on('DOMNodeInserted', function(e) {
+            if ($(e.target).find('.phone-mask, .phone-simple').length > 0) {
+                setTimeout(initializePhoneMasks, 100);
+            }
+        });
+        
+        // Initialize phone masks on page load
+        $(document).ready(function() {
+            initializePhoneMasks();
+        });
+        
+        // SweetAlert2 for confirmations
+        function confirmDelete(url, title = 'Are you sure?') {
+            Swal.fire({
+                title: title,
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        }
+        
+        // Sidebar toggle function for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            const body = document.body;
+            
+            sidebar.classList.toggle('show');
+            
+            if (sidebar.classList.contains('show')) {
+                backdrop.classList.add('show');
+                body.classList.add('sidebar-open');
+                body.style.overflow = 'hidden'; // Prevent background scrolling
+            } else {
+                backdrop.classList.remove('show');
+                body.classList.remove('sidebar-open');
+                body.style.overflow = '';
+            }
+        }
+        
+        // Close sidebar on mobile when backdrop is clicked
+        function closeSidebarOnMobile() {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const backdrop = document.querySelector('.sidebar-backdrop');
+                const body = document.body;
+                
+                sidebar.classList.remove('show');
+                backdrop.classList.remove('show');
+                body.classList.remove('sidebar-open');
+                body.style.overflow = '';
+            }
+        }
+        
+        // Handle window resize for better responsiveness
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const navbar = document.querySelector('.navbar');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            const body = document.body;
+            
+            if (window.innerWidth <= 768) {
+                // On mobile, ensure sidebar is hidden by default and remove collapsed state
+                sidebar.classList.remove('show');
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('sidebar-collapsed');
+                navbar.classList.remove('sidebar-collapsed');
+                backdrop.classList.remove('show');
+                body.classList.remove('sidebar-open');
+                body.style.overflow = '';
+            } else {
+                // On desktop, maintain collapsed state if it was collapsed
+                if (sidebar.classList.contains('collapsed')) {
+                    mainContent.classList.add('sidebar-collapsed');
+                    navbar.classList.add('sidebar-collapsed');
+                }
+                // Remove mobile-specific classes
+                sidebar.classList.remove('show');
+                backdrop.classList.remove('show');
+                body.classList.remove('sidebar-open');
+                body.style.overflow = '';
+            }
+        });
+        
+        // Sidebar collapse/expand function
+        function toggleSidebarCollapse() {
+            // On mobile, use toggleSidebar instead
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+                return;
+            }
+            
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const navbar = document.querySelector('.navbar');
+            const footer = document.querySelector('.footer');
+            const collapseIcon = document.getElementById('collapse-icon');
+            
+            if (!sidebar || !mainContent || !navbar || !footer) {
+                console.error('Required elements not found');
+                return;
+            }
+            
+            console.log('Toggle sidebar clicked');
+            console.log('Sidebar before:', sidebar.classList.contains('collapsed'));
+            
+            // Toggle collapsed class on sidebar
+            sidebar.classList.toggle('collapsed');
+            
+            // Toggle sidebar-collapsed class on all dependent elements
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                mainContent.classList.add('sidebar-collapsed');
+                navbar.classList.add('sidebar-collapsed');
+                footer.classList.add('sidebar-collapsed');
+                collapseIcon.className = 'bx bx-chevron-right';
+                console.log('Sidebar collapsed - showing icons only');
+            } else {
+                mainContent.classList.remove('sidebar-collapsed');
+                navbar.classList.remove('sidebar-collapsed');
+                footer.classList.remove('sidebar-collapsed');
+                collapseIcon.className = 'bx bx-chevron-left';
+                console.log('Sidebar expanded - showing full menu');
+            }
+            
+            console.log('Sidebar after:', sidebar.classList.contains('collapsed'));
+            console.log('Main content classes:', mainContent.className);
+            console.log('Navbar classes:', navbar.className);
+            console.log('Footer classes:', footer.className);
+        }
+        
+        // Close sidebar when clicking outside on mobile (backdrop handles this now)
+        // Also handle ESC key to close sidebar on mobile
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && window.innerWidth <= 768) {
+                closeSidebarOnMobile();
+            }
+        });
+        
+        // DataTables Mobile Enhancement
+        function enhanceDataTablesMobile() {
+            if (window.innerWidth <= 768) {
+                // Hide default DataTables controls
+                $('.dataTables_wrapper .dataTables_length').hide();
+                $('.dataTables_wrapper .dataTables_filter').hide();
+                $('.dataTables_wrapper .dataTables_info').hide();
+                $('.dataTables_wrapper .dataTables_paginate').hide();
+                
+                // Add mobile controls if they don't exist
+                if ($('.mobile-dt-controls').length === 0) {
+                    $('.dataTables_wrapper').before(`
+                        <div class="mobile-dt-controls">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="refreshTable()">
+                                    <i class='bx bx-refresh'></i> Refresh
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="exportTable()">
+                                    <i class='bx bx-download'></i> Export
+                                </button>
+                            </div>
+                            <div class="table-info">
+                                <small class="text-muted">Swipe to see more columns</small>
+                            </div>
+                        </div>
+                    `);
+                }
+                
+                // Add mobile pagination if it doesn't exist
+                if ($('.mobile-pagination').length === 0) {
+                    $('.dataTables_wrapper').after(`
+                        <div class="mobile-pagination">
+                            <button class="btn btn-sm btn-outline-primary" onclick="previousPage()">
+                                <i class='bx bx-chevron-left'></i>
+                            </button>
+                            <span class="page-info">Page 1 of 1</span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="nextPage()">
+                                <i class='bx bx-chevron-right'></i>
+                            </button>
+                        </div>
+                    `);
+                }
+            } else {
+                // Show default controls on desktop
+                $('.dataTables_wrapper .dataTables_length').show();
+                $('.dataTables_wrapper .dataTables_filter').show();
+                $('.dataTables_wrapper .dataTables_info').show();
+                $('.dataTables_wrapper .dataTables_paginate').show();
+                
+                // Remove mobile controls
+                $('.mobile-dt-controls').remove();
+                $('.mobile-pagination').remove();
+            }
+        }
+        
+        // Mobile table functions
+        function refreshTable() {
+            if (typeof table !== 'undefined' && table) {
+                table.ajax.reload();
+            }
+        }
+        
+        function exportTable() {
+            if (typeof table !== 'undefined' && table) {
+                // Implement export functionality
+                alert('Export functionality would be implemented here');
+            }
+        }
+        
+        function previousPage() {
+            if (typeof table !== 'undefined' && table) {
+                table.page('previous').draw('page');
+            }
+        }
+        
+        function nextPage() {
+            if (typeof table !== 'undefined' && table) {
+                table.page('next').draw('page');
+            }
+        }
+        
+        // Fix modal backdrop overlay issue
+        // Remove any leftover modal backdrops on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove all modal backdrops
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => backdrop.remove());
+            
+            // Remove modal-open class from body
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
+        
+        // Clean up modal backdrops when modals are hidden
+        document.addEventListener('hidden.bs.modal', function(event) {
+            // Remove all modal backdrops
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => backdrop.remove());
+            
+            // Remove modal-open class from body
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
+        
+        // Run on window resize
+        window.addEventListener('resize', function() {
+            setTimeout(enhanceDataTablesMobile, 100);
+        });
+        
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(enhanceDataTablesMobile, 500);
+        });
+        
+        // Member Search Functionality
+        let searchTimeout;
+        const memberSearchInput = document.getElementById('memberSearch');
+        const searchResults = document.getElementById('searchResults');
+        
+        if (memberSearchInput) {
+            memberSearchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                // Clear previous timeout
+                clearTimeout(searchTimeout);
+                
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                
+                // Debounce search
+                searchTimeout = setTimeout(() => {
+                    searchMembers(query);
+                }, 300);
+            });
+            
+            // Hide search results when clicking outside
+            document.addEventListener('click', function(event) {
+                if (memberSearchInput && searchResults) {
+                    const isClickInside = memberSearchInput.contains(event.target) || searchResults.contains(event.target);
+                    if (!isClickInside) {
+                        searchResults.style.display = 'none';
+                    }
+                }
+            });
+        }
+        
+        function searchMembers(query) {
+            // Show loading state
+            searchResults.innerHTML = '<div class="search-loading"><i class="bx bx-loader-alt bx-spin"></i> Searching...</div>';
+            searchResults.style.display = 'block';
+            
+            // Make AJAX request to search members
+            fetch(`/members/search/?q=${encodeURIComponent(query)}`, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Try to get error message from response
+                    return response.json().then(data => {
+                        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                    }).catch(() => {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Search error:', data.error);
+                    searchResults.innerHTML = '<div class="search-error text-danger p-3"><i class="bx bx-error"></i> Error: ' + data.error + '</div>';
+                } else {
+                    displaySearchResults(data.members || []);
+                }
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                if (searchResults) {
+                    searchResults.innerHTML = '<div class="search-error text-danger p-3"><i class="bx bx-error"></i> Error searching members. Please try again.</div>';
+                    searchResults.style.display = 'block';
+                }
+            });
+        }
+        
+        function displaySearchResults(members) {
+            const resultsContainer = searchResults;
+            
+            if (members.length === 0) {
+                resultsContainer.innerHTML = '<div class="search-no-results"><i class="bx bx-search"></i> No members found</div>';
+            } else {
+                resultsContainer.innerHTML = members.map((member, index) => `
+                    <a href="${member.profile_url}" class="search-result-item text-decoration-none" data-index="${index}" onmouseover="highlightSearchResult(${index})">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="member-avatar">
+                                    <i class='bx bx-user'></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="member-name">${member.full_name}</div>
+                                <div class="member-details">
+                                    <span class="member-number">${member.member_number}</span>
+                                    ${member.phone ? `• ${member.phone}` : ''}
+                                    ${member.district ? `• ${member.district}` : ''}
+                                </div>
+                                <div class="member-extra-info">
+                                    ${member.occupation ? `<small class="text-muted">${member.occupation}</small>` : ''}
+                                    ${member.village_town ? `<small class="text-muted">• ${member.village_town}</small>` : ''}
+                                </div>
+                                <div class="member-status">
+                                    <span class="status-badge status-${member.status}">${member.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                `).join('');
+            }
+            
+            resultsContainer.style.display = 'block';
+        }
+        
+        function selectMember(memberId, memberName) {
+            // Redirect to member profile or perform desired action
+            window.location.href = `/members/profile/${memberId}/`;
+        }
+        
+        function highlightSearchResult(index) {
+            // Remove previous highlights
+            document.querySelectorAll('.search-result-item').forEach(item => {
+                item.classList.remove('highlighted');
+            });
+            
+            // Highlight current item
+            const currentItem = document.querySelector(`[data-index="${index}"]`);
+            if (currentItem) {
+                currentItem.classList.add('highlighted');
+            }
+        }
+        
+        // Add keyboard navigation
+        let selectedIndex = -1;
+        const memberSearchInput = document.getElementById('memberSearch');
+        
+        if (memberSearchInput) {
+            memberSearchInput.addEventListener('keydown', function(e) {
+                const results = document.querySelectorAll('.search-result-item');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, results.length - 1);
+                    if (results[selectedIndex]) {
+                        results[selectedIndex].scrollIntoView({ block: 'nearest' });
+                        highlightSearchResult(selectedIndex);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    if (selectedIndex >= 0 && results[selectedIndex]) {
+                        results[selectedIndex].scrollIntoView({ block: 'nearest' });
+                        highlightSearchResult(selectedIndex);
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && results[selectedIndex]) {
+                        results[selectedIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+            
+            // Reset selected index when typing
+            memberSearchInput.addEventListener('input', function() {
+                selectedIndex = -1;
+            });
+        }
+    </script>
+    
+    <!-- Coming Soon Function -->
+    <script>
+        function showComingSoon(feature) {
+            Swal.fire({
+                title: 'Coming Soon!',
+                text: `${feature} feature is currently under development and will be available soon.`,
+                icon: 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#667eea',
+                customClass: {
+                    popup: 'swal2-popup-custom'
+                }
+            });
+        }
+    </script>
+
+    <!-- Custom JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    {% block extra_js %}
+    {% endblock %}
+    
+    <style>
+        /* SweetAlert2 Custom Styles */
+        .swal2-popup-custom {
+            border-radius: 15px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .swal2-popup-custom .swal2-title {
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+        }
+        
+        .swal2-popup-custom .swal2-content {
+            color: #6c757d !important;
+        }
+        
+        .swal2-popup-custom .swal2-confirm {
+            background-color: #667eea !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+            padding: 0.75rem 2rem !important;
+        }
+        
+        .swal2-popup-custom .swal2-confirm:hover {
+            background-color: #5a6fd8 !important;
+        }
+        
+        /* Active link highlighting */
+        .nav-link.active {
+            background-color: rgba(0, 143, 77, 0.1);
+            color: #008f4d !important;
+            font-weight: 600;
+            border-left: 3px solid #008f4d;
+        }
+        
+        /* Parent menu highlighting */
+        .nav-link.active-parent {
+            background-color: rgba(0, 143, 77, 0.15);
+            color: #008f4d !important;
+            font-weight: 600;
+        }
+        
+        .collapse.show > ul > li > a.active {
+            background-color: rgba(0, 143, 77, 0.15);
+        }
+        
+        /* Page Header styling */
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Breadcrumb styling */
+        .breadcrumb-container {
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 0;
+        }
+        
+        .breadcrumb-item a {
+            color: #008f4d;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: #006633;
+            text-decoration: underline;
+        }
+        
+        /* Select2 styling improvements */
+        .select2-container--bootstrap-5 .select2-selection {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+        }
+        
+        .select2-container--bootstrap-5 .select2-selection:focus {
+            border-color: #008f4d;
+            box-shadow: 0 0 0 0.2rem rgba(0, 143, 77, 0.25);
+        }
+    </style>
+    
+    <!-- AJAX Modals -->
+    {% include 'components/ajax_modal.html' %}
+    
+    <!-- Unified Select2 Initialization for All Select Fields -->
+    <script>
+        // Unified Select2 initialization function - applies to ALL select fields
+        function initializeAllSelect2(container) {
+            // Use container if provided, otherwise search entire document
+            var $container = container ? $(container) : $(document);
+            
+            // Find all select elements that are not already initialized
+            $container.find('select').each(function() {
+                var $select = $(this);
+                
+                // Skip if already initialized with Select2
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    return;
+                }
+                
+                // Skip DataTables internal selects
+                if ($select.closest('.dataTables_wrapper').length > 0 || 
+                    $select.hasClass('dataTables_length') ||
+                    $select.closest('.dataTables_length').length > 0) {
+                    return;
+                }
+                
+                // Skip if it's a hidden select (unless in modal which might be shown later)
+                if ($select.is(':hidden') && !$select.closest('.modal').length) {
+                    return;
+                }
+                
+                // Skip if it has a data-no-select2 attribute (for exceptions)
+                if ($select.attr('data-no-select2') === 'true') {
+                    return;
+                }
+                
+                try {
+                    // Get placeholder text from first option or use default
+                    var placeholder = 'Select an option';
+                    var firstOption = $select.find('option:first');
+                    if (firstOption.length && firstOption.val() === '') {
+                        var firstOptionText = firstOption.text().trim();
+                        if (firstOptionText && firstOptionText.toLowerCase() !== '---------') {
+                            placeholder = firstOptionText;
+                        }
+                    }
+                    
+                    // Initialize Select2 with consistent configuration
+                    $select.select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        placeholder: placeholder,
+                        allowClear: true,
+                        language: {
+                            noResults: function() {
+                                return "No results found";
+                            },
+                            searching: function() {
+                                return "Searching...";
+                            }
+                        }
+                    });
+                    
+                    // Handle validation styling - remove invalid classes on change
+                    $select.off('change.select2-validation').on('change.select2-validation', function() {
+                        $(this).removeClass('is-invalid');
+                        $(this).next('.invalid-feedback').hide();
+                    });
+                } catch (e) {
+                    console.warn('Select2 initialization error for element:', $select.attr('id') || $select.attr('name'), e);
+                }
+            });
+        }
+        
+        // Initialize Select2 - wait for all scripts to load
+        $(document).ready(function() {
+            // Verify jQuery and Select2 are loaded
+            if (typeof $ === 'undefined') {
+                console.error('jQuery is not loaded!');
+                return;
+            }
+            if (typeof $.fn.select2 === 'undefined') {
+                console.error('Select2 is not loaded! Please check if Select2 script is loaded.');
+                return;
+            }
+            
+            // Initial initialization - wait a bit for all content to load
+            setTimeout(function() {
+                try {
+                    initializeAllSelect2();
+                    console.log('Select2 initialization completed for all select fields');
+                } catch (error) {
+                    console.error('Error initializing Select2:', error);
+                }
+            }, 200);
+            
+            // Re-initialize when modals are shown (for dynamically loaded content)
+            $(document).on('shown.bs.modal', '.modal', function() {
+                setTimeout(function() {
+                    initializeAllSelect2($(this));
+                }.bind(this), 150);
+            });
+            
+            // Use MutationObserver for better performance (replaces deprecated DOMNodeInserted)
+            if (typeof MutationObserver !== 'undefined') {
+                var observer = new MutationObserver(function(mutations) {
+                    var needsInit = false;
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes.length > 0) {
+                            for (var i = 0; i < mutation.addedNodes.length; i++) {
+                                var node = mutation.addedNodes[i];
+                                if (node.nodeType === 1) { // Element node
+                                    if ($(node).is('select') || $(node).find('select').length > 0) {
+                                        needsInit = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    if (needsInit) {
+                        setTimeout(initializeAllSelect2, 100);
+                    }
+                });
+                
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            } else {
+                // Fallback for older browsers (deprecated but works)
+                $(document).on('DOMNodeInserted', function(e) {
+                    if ($(e.target).find('select').length > 0 || $(e.target).is('select')) {
+                        setTimeout(initializeAllSelect2, 100);
+                    }
+                });
+            }
+            
+            // Handle form validation with Select2
+            $(document).on('submit', 'form', function() {
+                // Trigger change event on all Select2 fields to ensure validation
+                $(this).find('select.select2-hidden-accessible').each(function() {
+                    $(this).trigger('change');
+                });
+            });
+            
+            // Re-initialize Select2 when tabs are shown (for tabbed forms)
+            $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function() {
+                setTimeout(initializeAllSelect2, 100);
+            });
+            
+            // Expose function globally for manual initialization if needed
+            window.initializeAllSelect2 = initializeAllSelect2;
+            
+            // Keep accordion open if contains active link
+            $('.nav-link.active').closest('.collapse').addClass('show');
+            $('.nav-link.active').closest('.collapse').prev('a').attr('aria-expanded', 'true');
+            
+            // Highlight parent menu item when child is active
+            $('.nav-link.active').closest('.collapse').prev('a').addClass('active-parent');
+            
+            // Handle inline creation modals
+            $('[data-bs-target="#createSavingsAccountModal"]').click(function() {
+                loadSavingsAccountForm();
+            });
+            
+            $('[data-bs-target="#createMemberGroupModal"]').click(function() {
+                loadMemberGroupForm();
+            });
+            
+            $('[data-bs-target="#createExpenseCategoryModal"]').click(function() {
+                loadExpenseCategoryForm();
+            });
+        });
+        
+        // Load savings account form data
+        function loadSavingsAccountForm() {
+            // Load members for select
+            $.get('/members/api/members/', function(data) {
+                const memberSelect = $('#createSavingsAccountModal #member');
+                memberSelect.empty().append('<option value="">Select a member</option>');
+                data.members.forEach(function(member) {
+                    memberSelect.append(`<option value="${member.id}">${member.full_name}</option>`);
+                });
+                // Re-initialize Select2 after options are loaded
+                setTimeout(initializeAllSelect2, 100);
+            });
+            
+            // Load products for select
+            $.get('/savings/api/products/', function(data) {
+                const productSelect = $('#createSavingsAccountModal #product');
+                productSelect.empty().append('<option value="">Select a product</option>');
+                data.products.forEach(function(product) {
+                    productSelect.append(`<option value="${product.id}">${product.name}</option>`);
+                });
+                // Re-initialize Select2 after options are loaded
+                setTimeout(initializeAllSelect2, 100);
+            });
+        }
+        
+        // Load member group form data
+        function loadMemberGroupForm() {
+            // Load members for leader select
+            $.get('/members/api/members/', function(data) {
+                const leaderSelect = $('#createMemberGroupModal #group_leader');
+                leaderSelect.empty().append('<option value="">Select a leader</option>');
+                data.members.forEach(function(member) {
+                    leaderSelect.append(`<option value="${member.id}">${member.full_name}</option>`);
+                });
+                // Re-initialize Select2 after options are loaded
+                setTimeout(initializeAllSelect2, 100);
+            });
+        }
+        
+        // Load expense category form data
+        function loadExpenseCategoryForm() {
+            // Form is simple, no additional data needed
+        }
+        
+        // Handle form submissions
+        $('#saveSavingsAccount').click(function() {
+            const formData = $('#savingsAccountForm').serialize();
+            $.post('/savings/api/create-account/', formData, function(response) {
+                if (response.success) {
+                    // Add new option to the select that triggered the modal
+                    const targetSelect = $('.select2:visible').first();
+                    const newOption = new Option(response.text, response.id, true, true);
+                    targetSelect.append(newOption).trigger('change');
+                    
+                    // Close modal
+                    $('#createSavingsAccountModal').modal('hide');
+                    
+                    // Show success message
+                    showNotification('Savings account created successfully!', 'success');
+                } else {
+                    showNotification('Error creating account: ' + response.error, 'error');
+                }
+            });
+        });
+        
+        $('#saveMemberGroup').click(function() {
+            const formData = $('#memberGroupForm').serialize();
+            $.post('/members/api/create-group/', formData, function(response) {
+                if (response.success) {
+                    const targetSelect = $('.select2:visible').first();
+                    const newOption = new Option(response.text, response.id, true, true);
+                    targetSelect.append(newOption).trigger('change');
+                    $('#createMemberGroupModal').modal('hide');
+                    showNotification('Member group created successfully!', 'success');
+                } else {
+                    showNotification('Error creating group: ' + response.error, 'error');
+                }
+            });
+        });
+        
+        $('#saveExpenseCategory').click(function() {
+            const formData = $('#expenseCategoryForm').serialize();
+            $.post('/expenses/api/create-category/', formData, function(response) {
+                if (response.success) {
+                    const targetSelect = $('.select2:visible').first();
+                    const newOption = new Option(response.text, response.id, true, true);
+                    targetSelect.append(newOption).trigger('change');
+                    $('#createExpenseCategoryModal').modal('hide');
+                    showNotification('Expense category created successfully!', 'success');
+                } else {
+                    showNotification('Error creating category: ' + response.error, 'error');
+                }
+            });
+        });
+        
+        // Notification function
+        function showNotification(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alert = $(`<div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`);
+            
+            $('.breadcrumb-container').after(alert);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(function() {
+                alert.alert('close');
+            }, 5000);
+        }
+        
+        // Real-time notification polling
+        let notificationPollingInterval;
+        
+        function startNotificationPolling() {
+            // Poll every 10 seconds
+            notificationPollingInterval = setInterval(function() {
+                updateNotificationBadge();
+                updateNotificationDropdown();
+            }, 10000);
+        }
+        
+        function stopNotificationPolling() {
+            if (notificationPollingInterval) {
+                clearInterval(notificationPollingInterval);
+            }
+        }
+        
+        function updateNotificationBadge() {
+            fetch('/notifications/api/unread-count/')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector('.notification-badge');
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'inline';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error updating notification badge:', error));
+        }
+        
+        function updateNotificationDropdown() {
+            fetch('/notifications/api/recent/?limit=5')
+                .then(response => response.json())
+                .then(data => {
+                    updateNotificationDropdownContent(data.notifications);
+                })
+                .catch(error => console.error('Error updating notification dropdown:', error));
+        }
+        
+        function updateNotificationDropdownContent(notifications) {
+            const dropdown = document.querySelector('.notification-dropdown');
+            if (!dropdown) return;
+            
+            // Clear existing notifications (keep header and footer)
+            const existingItems = dropdown.querySelectorAll('.notification-item');
+            existingItems.forEach(item => item.remove());
+            
+            // Update notification count
+            const unreadCount = notifications.filter(n => !n.is_read).length;
+            const countElement = document.getElementById('notification-count');
+            if (countElement) {
+                countElement.textContent = unreadCount;
+            }
+            
+            // Update badge
+            const badge = document.querySelector('.notification-badge');
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            
+            // Add new notifications
+            const notificationsContainer = dropdown.querySelector('.notifications-container');
+            if (notificationsContainer) {
+                notificationsContainer.innerHTML = '';
+                
+                if (notifications.length === 0) {
+                    notificationsContainer.innerHTML = `
+                        <div class="notification-empty">
+                            <i class='bx bx-bell-off'></i>
+                            <div>No notifications</div>
+                        </div>
+                    `;
+                } else {
+                    notifications.forEach(notification => {
+                        const notificationElement = createNotificationElement(notification);
+                        notificationsContainer.appendChild(notificationElement);
+                    });
+                }
+            }
+        }
+        
+        function createNotificationElement(notification) {
+            const div = document.createElement('div');
+            div.className = `notification-item ${notification.is_read ? '' : 'unread'}`;
+            div.innerHTML = `
+                <a href="${notification.action_url || '#'}" class="dropdown-item p-0">
+                    <div class="d-flex align-items-start">
+                        <div class="notification-icon ${notification.action_type || 'default'}">
+                            <i class="bx ${getNotificationIcon(notification.action_type)}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message || ''}</div>
+                            <div class="notification-meta">
+                                <span class="notification-time">${formatTimeAgo(notification.sent_at)}</span>
+                                <span class="notification-priority priority-${notification.priority?.toLowerCase() || 'medium'}">${notification.priority || 'Medium'}</span>
+                            </div>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="notification-action-btn" onclick="markAsRead('${notification.id}'); event.stopPropagation();" title="Mark as read">
+                                <i class="bx bx-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            `;
+            return div;
+        }
+        
+        function getNotificationIcon(actionType) {
+            const icons = {
+                'loan_approval': 'bx-check-circle',
+                'loan_rejection': 'bx-x-circle',
+                'loan_disbursement': 'bx-money',
+                'savings_deposit': 'bx-plus-circle',
+                'savings_withdrawal': 'bx-minus-circle',
+                'member_registration': 'bx-user-plus',
+                'payment_reminder': 'bx-bell',
+                'password_reset': 'bx-key',
+                'system_alert': 'bx-info-circle',
+                'group_contribution': 'bx-group',
+                'emergency_loan': 'bx-alarm',
+                'training_completion': 'bx-award'
+            };
+            return icons[actionType] || 'bx-bell';
+        }
+        
+        function markAsRead(notificationId) {
+            fetch(`/notifications/mark-as-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the notification element
+                    const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                    if (notificationElement) {
+                        notificationElement.classList.remove('unread');
+                        notificationElement.querySelector('.notification-actions').style.display = 'none';
+                    }
+                    // Refresh notifications
+                    refreshNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+        }
+        
+        function markAllAsRead() {
+            fetch('/notifications/mark-all-read/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Refresh notifications
+                    refreshNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking all notifications as read:', error));
+        }
+        
+        function refreshNotifications() {
+            updateNotifications();
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        }
+        
+        // Start polling when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            startNotificationPolling();
+        });
+        
+        // Stop polling when page unloads
+        window.addEventListener('beforeunload', function() {
+            stopNotificationPolling();
+        });
+        
+        // Mark all notifications as read
+        function markAllAsRead() {
+            fetch('/notifications/api/mark-all-read/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateNotificationBadge();
+                    updateNotificationDropdown();
+                    showNotification('All notifications marked as read', 'success');
+                }
+            })
+            .catch(error => console.error('Error marking notifications as read:', error));
+        }
+
+        // DataTables initialization and filtering
+        $(document).ready(function() {
+            // Initialize DataTables for all tables with data-table class
+            $('.data-table').each(function() {
+                var table = $(this);
+                var headers = table.find('thead th').length;
+                var firstRowCells = table.find('tbody tr:first td').length;
+                
+                // Only initialize if column counts match or table is empty
+                if (headers === firstRowCells || table.find('tbody tr').length === 0) {
+                    table.DataTable({
+                        responsive: true,
+                        pageLength: 25,
+                        order: [[0, 'desc']],
+                        language: {
+                            search: "Search:",
+                            lengthMenu: "Show _MENU_ entries",
+                            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                            emptyTable: "No data available in table",
+                            paginate: {
+                                first: "First",
+                                last: "Last",
+                            next: "Next",
+                            previous: "Previous"
+                        }
+                    }
+                });
+                } else {
+                    console.warn('DataTables: Column count mismatch detected for table:', table.attr('class'), 
+                                'Headers:', headers, 'First row cells:', firstRowCells);
+                }
+                
+                // Connect custom search inputs
+                table.closest('.card-body').find('input[type="text"][id*="search"]').on('keyup', function() {
+                    if (table.DataTable) {
+                        table.DataTable().search(this.value).draw();
+                    }
+                });
+
+                // Connect custom filter dropdowns
+                table.closest('.card-body').find('select[id*="Filter"]').on('change', function() {
+                    if (table.DataTable) {
+                        var columnIndex = $(this).data('column') || 4; // Default to column 4 (status)
+                        table.DataTable().column(columnIndex).search(this.value).draw();
+                    }
+                });
+            });
+        });
+
+        // Global form submission handler with loading state
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && this.checkValidity()) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Group Details{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'member_list' %}">Members</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'member_groups' %}">Member Groups</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Group Details</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end align-items-center mb-4">
+    <a href="{% url 'member_groups' %}" class="btn btn-outline-secondary">Back</a>
+    
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Description:</strong> {{ group.description|default:'—' }}</p>
+        <p><strong>Leader:</strong> {{ group.leader.full_name|default:'—' }}</p>
+        <hr>
+        <h5>Members</h5>
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Member #</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in members %}
+                    <tr>
+                        <td>{{ m.member_number }}</td>
+                        <td>{{ m.full_name }}</td>
+                        <td>{{ m.phone|default:'—' }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No members in this group</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+

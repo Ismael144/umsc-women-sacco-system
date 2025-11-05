@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Funds Allocation{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'funding_list' %}">Funding Management</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Enhanced Funds Allocation</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h4 class="mb-0">
+                        <i class='bx bx-money-withdraw'></i> Funds Allocation
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form id="allocationForm" method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Step 1: Select Inflow Section -->
+                        <div class="mb-4" id="inflowSection">
+                            <label class="form-label fw-bold">Select Inflow</label>
+                            <select class="form-select form-select-lg" id="inflowSelect" name="funding_id" required>
+                                <option value="">Choose funding source...</option>
+                                {% for funding in available_funding %}
+                                <option value="{{ funding.id }}" 
+                                        data-amount="{{ funding.amount }}"
+                                        data-source="{{ funding.source.name }}"
+                                        data-date="{{ funding.received_date|date:'Y-m-d' }}">
+                                    {{ funding.amount|ugx }} from {{ funding.source.name }} on {{ funding.received_date|date:'Y-m-d' }} ({{ funding.status|title }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Step 2: Allocation Items Section (Hidden initially) -->
+                        <div class="mb-4" id="allocationSection" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Allocation Items</h5>
+                                <button type="button" class="btn btn-warning btn-sm" id="addItemBtn">
+                                    <i class='bx bx-plus'></i> Add More Item
+                                </button>
+                            </div>
+                            
+                            <div id="allocationItems">
+                                <!-- Dynamic items will be added here -->
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons (Hidden initially) -->
+                        <div class="d-flex gap-2 mb-4" id="actionButtons" style="display: none;">
+                            <button type="submit" class="btn btn-primary px-4" id="allocateBtn">
+                                <i class='bx bx-check'></i> Allocate Funds
+                            </button>
+                            <button type="button" class="btn btn-warning px-4" id="resetBtn">
+                                <i class='bx bx-refresh'></i> Reset
+                            </button>
+                        </div>
+
+                        <!-- Summary Section (Hidden initially) -->
+                        <div class="card bg-light" id="summarySection" style="display: none;">
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-4">
+                                        <div class="allocation-summary">
+                                            <h6 class="text-muted mb-1">Total Allocated</h6>
+                                            <h4 class="mb-0" id="totalAllocated">0.00</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="allocation-summary">
+                                            <h6 class="text-muted mb-1">Percentage</h6>
+                                            <h4 class="mb-0" id="percentage">0.00%</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="allocation-summary">
+                                            <h6 class="text-muted mb-1">Remaining Balance</h6>
+                                            <h4 class="mb-0" id="remainingBalance">0.00</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.allocation-summary {
+    padding: 10px;
+}
+
+.allocation-summary h4 {
+    color: #008f4d;
+    font-weight: 700;
+}
+
+.allocation-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.allocation-item .remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #dc3545;
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.allocation-item .remove-btn:hover {
+    background: #c82333;
+}
+
+.item-row {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+}
+
+.item-name-col {
+    flex: 2;
+}
+
+.amount-col {
+    flex: 1;
+}
+
+.form-control:focus {
+    border-color: #008f4d;
+    box-shadow: 0 0 0 0.2rem rgba(0, 143, 77, 0.25);
+}
+
+.btn-warning {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+.btn-warning:hover {
+    background: #e0a800;
+    border-color: #d39e00;
+}
+
+#allocateBtn {
+    background: #6f42c1;
+    border-color: #6f42c1;
+}
+
+#allocateBtn:hover {
+    background: #5a32a3;
+    border-color: #5a32a3;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let itemCounter = 0;
+    let availableAmount = 0;
+    
+    // Inflow select change handler
+    document.getElementById('inflowSelect').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        availableAmount = parseFloat(selectedOption.getAttribute('data-amount')) || 0;
+        
+        if (availableAmount > 0) {
+            // Show allocation section
+            document.getElementById('allocationSection').style.display = 'block';
+            document.getElementById('actionButtons').style.display = 'flex';
+            document.getElementById('summarySection').style.display = 'block';
+            
+            // Create 3-4 default empty items
+            createDefaultItems();
+            updateSummary();
+        }
+    });
+    
+    // Add item button
+    document.getElementById('addItemBtn').addEventListener('click', function() {
+        addAllocationItem();
+    });
+    
+    // Reset button
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        resetForm();
+    });
+    
+    // Form submission
+    document.getElementById('allocationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (validateForm()) {
+            submitForm();
+        }
+    });
+    
+    function createDefaultItems() {
+        // Clear existing items
+        document.getElementById('allocationItems').innerHTML = '';
+        itemCounter = 0;
+        
+        // Create 3-4 default empty items
+        for (let i = 0; i < 4; i++) {
+            addAllocationItem();
+        }
+    }
+    
+    function addAllocationItem() {
+        itemCounter++;
+        const container = document.getElementById('allocationItems');
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'allocation-item';
+        itemDiv.innerHTML = `
+            <button type="button" class="remove-btn" onclick="removeAllocationItem(this)">
+                <i class='bx bx-x'></i>
+            </button>
+            <div class="item-row">
+                <div class="item-name-col">
+                    <label class="form-label">Item Name ${itemCounter}</label>
+                    <input type="text" class="form-control item-name" name="item_name_${itemCounter}" 
+                           placeholder="Enter item name" required>
+                </div>
+                <div class="amount-col">
+                    <label class="form-label">Amount ${itemCounter}</label>
+                    <input type="number" class="form-control item-amount" name="amount_${itemCounter}" 
+                           step="0.01" min="0" max="${availableAmount}" placeholder="Enter amount" required>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(itemDiv);
+        
+        // Add event listeners for real-time calculation
+        const amountInput = itemDiv.querySelector('.item-amount');
+        const nameInput = itemDiv.querySelector('.item-name');
+        
+        amountInput.addEventListener('input', function() {
+            // Validate individual amount
+            const amount = parseFloat(this.value) || 0;
+            if (amount > availableAmount) {
+                this.setCustomValidity(`Amount cannot exceed UGX ${availableAmount.toFixed(2)}`);
+                this.classList.add('is-invalid');
+            } else {
+                this.setCustomValidity('');
+                this.classList.remove('is-invalid');
+            }
+            updateSummary();
+        });
+        
+        nameInput.addEventListener('input', updateSummary);
+        
+        // Update remove button visibility
+        updateRemoveButtons();
+    }
+    
+    function removeAllocationItem(button) {
+        const itemDiv = button.closest('.allocation-item');
+        itemDiv.remove();
+        updateSummary();
+        updateRemoveButtons();
+    }
+    
+    function updateRemoveButtons() {
+        const items = document.querySelectorAll('.allocation-item');
+        items.forEach((item, index) => {
+            const removeBtn = item.querySelector('.remove-btn');
+            if (items.length <= 1) {
+                removeBtn.style.display = 'none';
+            } else {
+                removeBtn.style.display = 'flex';
+            }
+        });
+    }
+    
+    function updateSummary() {
+        const amountInputs = document.querySelectorAll('.item-amount');
+        let totalAllocated = 0;
+        
+        amountInputs.forEach(input => {
+            const amount = parseFloat(input.value) || 0;
+            totalAllocated += amount;
+        });
+        
+        const percentage = availableAmount > 0 ? (totalAllocated / availableAmount) * 100 : 0;
+        const remainingBalance = availableAmount - totalAllocated;
+        
+        // Update summary display
+        document.getElementById('totalAllocated').textContent = 'UGX ' + totalAllocated.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('percentage').textContent = percentage.toFixed(2) + '%';
+        document.getElementById('remainingBalance').textContent = 'UGX ' + remainingBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        // Color coding
+        const totalElement = document.getElementById('totalAllocated');
+        const percentageElement = document.getElementById('percentage');
+        const remainingElement = document.getElementById('remainingBalance');
+        
+        if (totalAllocated > availableAmount) {
+            totalElement.style.color = '#dc3545';
+            percentageElement.style.color = '#dc3545';
+            remainingElement.style.color = '#dc3545';
+        } else if (totalAllocated === availableAmount) {
+            totalElement.style.color = '#28a745';
+            percentageElement.style.color = '#28a745';
+            remainingElement.style.color = '#28a745';
+        } else {
+            totalElement.style.color = '#008f4d';
+            percentageElement.style.color = '#008f4d';
+            remainingElement.style.color = '#008f4d';
+        }
+    }
+    
+    function validateForm() {
+        const fundingId = document.getElementById('inflowSelect').value;
+        const amountInputs = document.querySelectorAll('.item-amount');
+        const nameInputs = document.querySelectorAll('.item-name');
+        
+        if (!fundingId) {
+            alert('Please select a funding source.');
+            return false;
+        }
+        
+        let totalAllocated = 0;
+        let hasValidItems = false;
+        
+        amountInputs.forEach((input, index) => {
+            const amount = parseFloat(input.value) || 0;
+            const name = nameInputs[index].value.trim();
+            
+            if (amount > 0 && name) {
+                totalAllocated += amount;
+                hasValidItems = true;
+            }
+        });
+        
+        if (!hasValidItems) {
+            alert('Please add at least one allocation item with name and amount.');
+            return false;
+        }
+        
+        if (totalAllocated > availableAmount) {
+            alert(`Total allocated amount (UGX ${totalAllocated.toFixed(2)}) cannot exceed available amount (UGX ${availableAmount.toFixed(2)}).`);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function submitForm() {
+        const formData = new FormData(document.getElementById('allocationForm'));
+        
+        // Add allocation items to form data
+        const items = [];
+        const nameInputs = document.querySelectorAll('.item-name');
+        const amountInputs = document.querySelectorAll('.item-amount');
+        
+        nameInputs.forEach((nameInput, index) => {
+            const name = nameInput.value.trim();
+            const amount = parseFloat(amountInputs[index].value) || 0;
+            
+            if (name && amount > 0) {
+                items.push({
+                    name: name,
+                    amount: amount
+                });
+            }
+        });
+        
+        formData.append('allocation_items', JSON.stringify(items));
+        
+        // Submit form
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('Form submission failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error submitting form. Please try again.');
+        });
+    }
+    
+    function resetForm() {
+        document.getElementById('allocationForm').reset();
+        document.getElementById('allocationItems').innerHTML = '';
+        document.getElementById('allocationSection').style.display = 'none';
+        document.getElementById('actionButtons').style.display = 'none';
+        document.getElementById('summarySection').style.display = 'none';
+        itemCounter = 0;
+        availableAmount = 0;
+    }
+    
+    // Make removeAllocationItem globally accessible
+    window.removeAllocationItem = removeAllocationItem;
+});
+</script>
+{% endblock %}

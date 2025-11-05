@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Loan Statistics{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'view_all_loans' %}">Loans</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Loan Statistics</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total Loans</div>
+                        <div class="stat-number">{{ stats.total_loans }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class='bx bx-credit-card' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total Disbursed</div>
+                        <div class="stat-number">{{ stats.total_disbursed|ugx }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class='bx bx-money' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Pending Approval</div>
+                        <div class="stat-number">{{ stats.pending_approval }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class='bx bx-time' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Active Loans</div>
+                        <div class="stat-number">{{ stats.active_loans }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class='bx bx-trending-up' style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Loan Performance Over Time</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="loanPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Loan Status Distribution</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="loanStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Loan Performance Chart
+const performanceCtx = document.getElementById('loanPerformanceChart').getContext('2d');
+const performanceChart = new Chart(performanceCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+            label: 'Loans Disbursed',
+            data: [50000, 75000, 60000, 80000, 90000, 100000],
+            borderColor: '#008f4d',
+            backgroundColor: 'rgba(0, 143, 77, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return 'UGX ' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Loan Status Chart
+const statusCtx = document.getElementById('loanStatusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+        data: {
+            labels: ['Active', 'Pending', 'Approved', 'Disbursed'],
+            datasets: [{
+                data: [45, 20, 15, 20],
+                backgroundColor: [
+                    '#008f4d',
+                    '#f39c12',
+                    '#e74c3c',
+                    '#17a2b8'
+                ],
+                borderWidth: 0
+            }]
+        },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

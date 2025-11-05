@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Add Savings Transaction{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'savings_accounts' %}">Savings Accounts</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Add Savings Transaction</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Add Savings Transaction</h4>
+    <a href="{% url 'savings_accounts' %}" class="btn btn-outline-secondary">
+        <i class='bx bx-arrow-back'></i> Back to Accounts
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+                </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="account" class="form-label">Savings Account *</label>
+                        <select class="form-select" id="account" name="account" required>
+                            <option value="">Select an account</option>
+                            {% for account in form.account.field.queryset %}
+                                <option value="{{ account.id }}">{{ account.account_number }} - {{ account.member.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.account.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.account.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="txn_type" class="form-label">Transaction Type *</label>
+                        <select class="form-select" id="txn_type" name="txn_type" required>
+                            <option value="">Select type</option>
+                            <option value="Deposit">Deposit</option>
+                            <option value="Withdrawal">Withdrawal</option>
+                            <option value="Interest">Interest</option>
+                            <option value="Fee">Fee</option>
+                            <option value="Transfer">Transfer</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount *</label>
+                        <input type="number" class="form-control" id="amount" name="amount" 
+                               step="0.01" required placeholder="Enter amount">
+                        {% if form.amount.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.amount.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="running_balance" class="form-label">Running Balance *</label>
+                        <input type="number" class="form-control" id="running_balance" name="running_balance" 
+                               step="0.01" required placeholder="Enter running balance">
+                        {% if form.running_balance.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.running_balance.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="reference" class="form-label">Reference</label>
+                        <input type="text" class="form-control" id="reference" name="reference" 
+                               placeholder="Enter reference number">
+                        {% if form.reference.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.reference.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="mobile_money_tx_id" class="form-label">Mobile Money Transaction ID</label>
+                        <input type="text" class="form-control" id="mobile_money_tx_id" name="mobile_money_tx_id" 
+                               placeholder="Enter mobile money transaction ID">
+                        {% if form.mobile_money_tx_id.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.mobile_money_tx_id.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="narration" class="form-label">Narration</label>
+                <textarea class="form-control" id="narration" name="narration" 
+                          rows="3" placeholder="Enter transaction description"></textarea>
+                {% if form.narration.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.narration.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'savings_accounts' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class='bx bx-save'></i> Add Transaction
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

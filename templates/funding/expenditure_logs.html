@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Expenditure Logs{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'funding_list' %}">Funding Management</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Expenditure Logs</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <button class="btn btn-primary">
+        <i class='bx bx-plus'></i> Add Expenditure
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Receipt #</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.expenditure_date|date:"M d, Y" }}</td>
+                        <td>{{ log.description }}</td>
+                        <td>{{ log.category }}</td>
+                        <td>{{ log.amount|ugx }}</td>
+                        <td>{{ log.receipt_number|default:"N/A" }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class='bx bx-show'></i> View
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No expenditure logs found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

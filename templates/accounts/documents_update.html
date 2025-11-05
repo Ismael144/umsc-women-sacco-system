@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Documents Update{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Documents Update</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            {% if selected_sacco %}
+            <h5 class="mb-0">Documents Review - {{ selected_sacco.name }}</h5>
+            {% else %}
+            <h5 class="mb-0">Documents Review</h5>
+            {% endif %}
+            <small class="text-muted">Total Documents: {{ total_documents }}</small>
+        </div>
+    </div>
+
+    {% if documents_by_member %}
+        {% for sacco_name, members_dict in documents_by_member.items %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class='bx bx-building'></i> {{ sacco_name }}</h6>
+            </div>
+            <div class="card-body">
+                {% for member_id, member_data in members_dict.items %}
+                <div class="mb-4 pb-4 border-bottom">
+                    <h6 class="mb-3">
+                        <i class='bx bx-user'></i> {{ member_data.member.full_name }} 
+                        <small class="text-muted">({{ member_data.member.member_number }})</small>
+                    </h6>
+                    <div class="row">
+                        {% for document in member_data.documents %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="badge bg-primary">{{ document.file_type }}</span>
+                                        <small class="text-muted">{{ document.uploaded_at|date:"M d, Y" }}</small>
+                                    </div>
+                                    {% if document.description %}
+                                    <p class="small text-muted mb-2">{{ document.description|truncatewords:10 }}</p>
+                                    {% endif %}
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ document.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class='bx bx-show'></i> View
+                                        </a>
+                                        <a href="{{ document.file.url }}" download class="btn btn-sm btn-outline-success">
+                                            <i class='bx bx-download'></i> Download
+                                        </a>
+                                    </div>
+                                    {% if document.uploaded_by %}
+                                    <small class="text-muted d-block mt-2">
+                                        Uploaded by: {{ document.uploaded_by.get_full_name|default:document.uploaded_by.username }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class='bx bx-file-blank' style="font-size: 48px; color: #ccc;"></i>
+                <p class="text-muted mt-3">No documents found{% if selected_sacco %} for {{ selected_sacco.name }}{% endif %}.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

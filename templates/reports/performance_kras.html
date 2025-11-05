@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Manage KRAs{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports_index' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Manage KRAs</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header + Actions -->
+    <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            {% if accessible_saccos %}
+            <div class="d-flex align-items-center gap-2">
+                <label for="sacco-select" class="form-label mb-0"><strong>Select Sacco:</strong></label>
+                <select id="sacco-select" class="form-select" style="min-width: 250px;" onchange="window.location.href='?sacco=' + this.value">
+                    {% for s in accessible_saccos %}
+                    <option value="{{ s.id }}" {% if s.id == sacco.id %}selected{% endif %}>
+                        {{ s.name }} - {{ s.region.name|default:"No Region" }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kraModal" onclick="openCreateKRA()">
+                    <i class='bx bx-plus'></i> New KRA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card border-left-primary"><div class="card-body">
+                <h6 class="text-primary">Total KRAs</h6>
+                <h3 class="mb-0">{{ kras|length }}</h3>
+            </div></div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-left-success"><div class="card-body">
+                <h6 class="text-success">Active KRAs</h6>
+                <h3 class="mb-0">{{ kras|dictsort:'is_active'|last|length }}</h3>
+            </div></div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-left-warning"><div class="card-body">
+                <h6 class="text-warning">Total Weight</h6>
+                <h3 class="mb-0" id="totalWeight">—</h3>
+                <small class="text-muted">Recommended total: 100</small>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- KRA table with search -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">KRA List</h6>
+            <input type="search" class="form-control w-auto" placeholder="Search KRAs" oninput="filterKRAs(this.value)">
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="kraTable">
+                    <thead class="table-light"><tr><th>Title</th><th>Description</th><th>Weight</th><th>Status</th><th>KPIs</th><th class="text-end">Actions</th></tr></thead>
+                    <tbody>
+                        {% for k in kras %}
+                        <tr>
+                            <td class="kra-title">{{ k.title }}</td>
+                            <td class="text-muted small">{{ k.description|default:'—' }}</td>
+                            <td class="kra-weight">{{ k.weight }}</td>
+                            <td>{% if k.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+                            <td><a href="{% url 'reports_performance_kpis' k.id %}" class="btn btn-sm btn-outline-primary">Manage KPIs</a></td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="openEditKRA('{{ k.id }}','{{ k.title|escapejs }}','{{ k.description|escapejs }}','{{ k.weight }}','{{ k.is_active }}')">Edit</button>
+                                    <form method="post" style="display:inline">{% csrf_token %}
+                                        <input type="hidden" name="kra_id" value="{{ k.id }}">
+                                        <input type="hidden" name="action" value="toggle">
+                                        <button class="btn btn-outline-warning" type="submit">{% if k.is_active %}Deactivate{% else %}Activate{% endif %}</button>
+                                    </form>
+                                    <form method="post" style="display:inline" onsubmit="return confirm('Delete this KRA?')">{% csrf_token %}
+                                        <input type="hidden" name="kra_id" value="{{ k.id }}">
+                                        <input type="hidden" name="action" value="delete">
+                                        <button class="btn btn-outline-danger" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center text-muted">No KRAs yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div class="modal fade" id="kraModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="kraModalTitle">New KRA</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" id="kraForm">{% csrf_token %}
+        <input type="hidden" name="kra_id" id="kra_id">
+        <input type="hidden" name="action" id="kra_action" value="create_or_update">
+        <div class="modal-body">
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+            {% endif %}
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}<div class="invalid-feedback d-block">{% for e in form.title.errors %}{{ e }}{% endfor %}</div>{% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Weight</label>
+                    {{ form.weight }}
+                    <div class="form-text">0–100</div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                {{ form.description }}
+            </div>
+            <div class="form-check mb-2">
+                <label class="form-check-label">Active {{ form.is_active }}</label>
+            </div>
+            <div class="alert alert-info" id="weightInfo" role="alert">
+                Total KRA weight (including this): <strong id="totalWeightLive">—</strong>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Compute total weight and display
+function computeTotalWeight() {
+    let total = 0;
+    document.querySelectorAll('#kraTable .kra-weight').forEach(td => {
+        const v = parseFloat(td.textContent.trim());
+        if (!isNaN(v)) total += v;
+    });
+    const el = document.getElementById('totalWeight');
+    if (el) el.textContent = total.toFixed(2);
+    return total;
+}
+computeTotalWeight();
+
+// Live weight info inside modal
+function updateWeightInfo(editDelta) {
+    const base = computeTotalWeight();
+    const live = document.getElementById('totalWeightLive');
+    if (live) live.textContent = (base + editDelta).toFixed(2);
+}
+
+// Search filter
+function filterKRAs(q) {
+    q = (q || '').toLowerCase();
+    document.querySelectorAll('#kraTable tbody tr').forEach(tr => {
+        const title = tr.querySelector('.kra-title')?.textContent.toLowerCase() || '';
+        tr.style.display = title.includes(q) ? '' : 'none';
+    });
+}
+
+// Modal handlers
+function openCreateKRA() {
+    document.getElementById('kraModalTitle').textContent = 'New KRA';
+    document.getElementById('kra_id').value = '';
+    const form = document.getElementById('kraForm');
+    form.reset();
+    // recalc with current field value (0)
+    updateWeightInfo(0);
+}
+
+function openEditKRA(id, title, description, weight, is_active) {
+    document.getElementById('kraModalTitle').textContent = 'Edit KRA';
+    document.getElementById('kra_id').value = id;
+    const form = document.getElementById('kraForm');
+    form.querySelector('#id_title').value = title;
+    form.querySelector('#id_description').value = description;
+    form.querySelector('#id_weight').value = weight;
+    form.querySelector('#id_is_active').checked = (is_active === 'True');
+    const w = parseFloat(weight || '0');
+    updateWeightInfo(isNaN(w) ? 0 : 0); // shows current total
+    const modal = new bootstrap.Modal(document.getElementById('kraModal'));
+    modal.show();
+}
+
+// Update live total when typing weight
+document.addEventListener('input', function(e){
+    if (e.target && e.target.id === 'id_weight') {
+        const v = parseFloat(e.target.value || '0');
+        updateWeightInfo(isNaN(v) ? 0 : v);
+    }
+});
+</script>
+{% endblock %}
+

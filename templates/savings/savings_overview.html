@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Savings Overview{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'savings_accounts' %}">Savings</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Savings Overview</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Accounts</h6>
+                    <h3 class="mb-0">{{ total_all_accounts }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Balance</h6>
+                    <h3 class="mb-0">{{ total_all_balance|ugx }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Saccos</h6>
+                    <h3 class="mb-0">{{ sacco_summaries|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sacco Summaries Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class='bx bx-wallet'></i> Savings Summary by Sacco</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Sacco Name</th>
+                            <th>District</th>
+                            <th>Total Accounts</th>
+                            <th>Active Accounts</th>
+                            <th>Inactive Accounts</th>
+                            <th>Total Balance</th>
+                            <th>Average Balance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for summary in sacco_summaries %}
+                        <tr>
+                            <td><strong>{{ summary.sacco.name }}</strong></td>
+                            <td>{{ summary.sacco.district.name|default:"N/A" }}</td>
+                            <td>{{ summary.total_accounts }}</td>
+                            <td><span class="badge bg-success">{{ summary.active_accounts }}</span></td>
+                            <td><span class="badge bg-danger">{{ summary.inactive_accounts }}</span></td>
+                            <td><strong>{{ summary.total_balance|ugx }}</strong></td>
+                            <td>{{ summary.avg_balance|ugx }}</td>
+                            <td>
+                                <a href="{% url 'savings_accounts' %}?sacco={{ summary.sacco.id }}" class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-show'></i> View Accounts
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">No savings data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

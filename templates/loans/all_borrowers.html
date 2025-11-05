@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block page_title %}All Borrowers{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'view_all_loans' %}">Loans</a></li>
+        <li class="breadcrumb-item active" aria-current="page">All Borrowers</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Member #</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Total Loans</th>
+                        <th>Active Loans</th>
+                        <th>Total Borrowed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for borrower in borrowers %}
+                    <tr>
+                        <td>{{ borrower.member_number }}</td>
+                        <td>{{ borrower.full_name }}</td>
+                        <td>{{ borrower.email }}</td>
+                        <td>{{ borrower.phone }}</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>$0.00</td>
+                        <td>
+                            <a href="{% url 'member_profile' borrower.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class='bx bx-show'></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No borrowers found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

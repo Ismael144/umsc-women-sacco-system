@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Funding Report{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports_index' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Funding Report</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <button class="btn btn-primary">
+        <i class='bx bx-download'></i> Export Report
+    </button>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-money fs-1'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0">{{ total_funding|ugx }}</h3>
+                        <small>Total Funding</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-check-circle fs-1'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0">{{ total_allocated|ugx }}</h3>
+                        <small>Total Allocated</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-receipt fs-1'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0">{{ total_expenses|ugx }}</h3>
+                        <small>Total Expenses</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-wallet fs-1'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0 {% if remaining_balance < 0 %}text-danger{% elif remaining_balance > 0 %}text-white{% else %}text-white{% endif %}">{{ remaining_balance|ugx }}</h3>
+                        <small>Remaining Balance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Recent Funding</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Amount</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                        <th>Received Date</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for funding in recent_funding %}
+                    <tr>
+                        <td>
+                            <strong>{{ funding.source.name }}</strong>
+                            <br><small class="text-muted">{{ funding.source.contact_person }}</small>
+                        </td>
+                        <td>{{ funding.amount|ugx }}</td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 200px;" title="{{ funding.purpose }}">
+                                {{ funding.purpose }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if funding.status == 'received' %}bg-success
+                                {% elif funding.status == 'pending' %}bg-warning
+                                {% elif funding.status == 'allocated' %}bg-info
+                                {% elif funding.status == 'spent' %}bg-primary
+                                {% else %}bg-secondary{% endif %}">
+                                {{ funding.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if funding.received_date %}
+                                {{ funding.received_date|date:"M d, Y" }}
+                            {% else %}
+                                <span class="text-muted">Not received</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ funding.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No funding records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Status Breakdown -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Funding Status Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for status in funding_by_status %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h4 class="text-primary">{{ status.count }}</h4>
+                                <p class="mb-0">{{ status.status|title }} Funding</p>
+                                <small class="text-muted">{{ status.total_amount|ugx }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <p class="text-muted text-center">No funding data available</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Funding Report Card Styles */
+.card.bg-primary, .card.bg-success, .card.bg-info, .card.bg-warning {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.card.bg-primary:hover, .card.bg-success:hover, .card.bg-info:hover, .card.bg-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card.bg-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.card.bg-success {
+    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+}
+
+.card.bg-info {
+    background: linear-gradient(135deg, #17a2b8, #117a8b) !important;
+}
+
+.card.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+}
+
+/* Status breakdown cards */
+.card.bg-light {
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.card.bg-light:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styling */
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 0.75em;
+    padding: 0.5em 0.75em;
+}
+</style>
+{% endblock %}

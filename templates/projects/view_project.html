@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Project Details{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'existing_projects' %}">Projects</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Project Details</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <a href="{% url 'existing_projects' %}" class="btn btn-outline-secondary">Back</a>
+    
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Description:</strong> {{ project.description }}</p>
+                <p><strong>Budget:</strong> {{ project.budget|ugx }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Start Date:</strong> {{ project.start_date|date:"M d, Y" }}</p>
+                <p><strong>End Date:</strong> {{ project.end_date|date:"M d, Y"|default:"Ongoing" }}</p>
+                <p><strong>Status:</strong> {{ project.get_status_display }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+

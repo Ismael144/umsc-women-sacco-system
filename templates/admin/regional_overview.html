@@ -1,0 +1,639 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Regional Overview{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Force table containers to span full width */
+    .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto;
+    }
+    
+    .table {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed;
+        margin: 0 !important;
+    }
+    
+    .table th,
+    .table td {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .table th.w-50 {
+        width: 50% !important;
+    }
+    
+    .table th.w-25 {
+        width: 25% !important;
+    }
+    
+    /* Override Bootstrap column constraints for table containers */
+    .card-body .table-responsive {
+        width: 100% !important;
+        max-width: none !important;
+    }
+    
+    /* Force table to break out of column constraints */
+    .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Override any Bootstrap column width constraints */
+    .col-xl-6 .table-responsive,
+    .col-lg-12 .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Quick Actions Redesign Styles */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+    }
+    
+    .bg-gradient-dark {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+    }
+    
+    .bg-gradient-purple {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    .bg-gradient-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+    }
+    
+    .avatar-lg {
+        width: 4rem;
+        height: 4rem;
+    }
+    
+    .avatar-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .text-purple {
+        color: #6f42c1 !important;
+    }
+    
+    .bg-soft {
+        background-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    /* Extra small button size */
+    .btn-xs {
+        padding: 0.1rem 0.3rem;
+        font-size: 0.55rem;
+        border-radius: 0.15rem;
+        line-height: 1.1;
+    }
+    
+    /* Make Quick Actions text smaller */
+    .quick-actions .card-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .quick-actions .text-muted {
+        font-size: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .quick-actions .text-white-50 {
+        font-size: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Reduce avatar size in quick actions */
+    .quick-actions .avatar-lg {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+    
+    .quick-actions .avatar-title {
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Regional Overview</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- System Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-truncate font-size-14 mb-2">Total Regions</p>
+                            <h4 class="mb-0">{{ total_regions }}</h4>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-primary bg-soft">
+                                <i class="bx bx-map font-size-24 text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-truncate font-size-14 mb-2">Total Saccos</p>
+                            <h4 class="mb-0">{{ total_saccos_system }}</h4>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-success bg-soft">
+                                <i class="bx bx-building font-size-24 text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-truncate font-size-14 mb-2">Total Members</p>
+                            <h4 class="mb-0">{{ total_members_system }}</h4>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-info bg-soft">
+                                <i class="bx bx-group font-size-24 text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-truncate font-size-14 mb-2">Total Loans</p>
+                            <h4 class="mb-0">{{ total_loans_system }}</h4>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-warning bg-soft">
+                                <i class="bx bx-credit-card font-size-24 text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Region Selector -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <label for="region-selector" class="form-label mb-0">
+                        <i class='bx bx-map'></i> Filter by Region:
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <select class="form-select" id="region-selector" name="region" onchange="filterByRegion(this.value)">
+                        <option value="">All Regions</option>
+                        {% for region in all_regions %}
+                        <option value="{{ region.id }}" {% if selected_region_id == region.id %}selected{% endif %}>
+                            {{ region.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function filterByRegion(regionId) {
+        const url = new URL(window.location.href);
+        if (regionId) {
+            url.searchParams.set('region', regionId);
+        } else {
+            url.searchParams.delete('region');
+        }
+        window.location.href = url.toString();
+    }
+    </script>
+
+    <!-- Regions Overview -->
+        {% for region_data in regions_with_stats %}
+        <div class="col-xl- col-lg-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class='bx bx-map'></i> {{ region_data.region.name }}
+                        </h6>
+                        <a href="{% url 'region_detail' region_data.region.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class='bx bx-show'></i> View Details
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Regional Admin Info -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class='bx bx-user-check text-primary me-2'></i>
+                                <strong>Regional Admin:</strong>
+                                <span class="ms-2">
+                                    {% if region_data.regional_admin %}
+                                        {{ region_data.regional_admin.first_name }} {{ region_data.regional_admin.last_name }}
+                                        <small class="text-muted">({{ region_data.regional_admin.username }})</small>
+                                    {% else %}
+                                        <span class="text-warning">No regional admin assigned</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regional Statistics -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Active Saccos:</span>
+                                    <strong class="text-success">{{ region_data.total_saccos }}</strong>
+                                </div>
+                                {% if region_data.inactive_saccos > 0 %}
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Inactive Saccos:</span>
+                                    <strong class="text-danger">{{ region_data.inactive_saccos }}</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Total Members:</span>
+                                    <strong>{{ region_data.total_members }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Total Loans:</span>
+                                    <strong>{{ region_data.total_loans }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Overview -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-2">Financial Overview</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="text-success fw-bold">UGX {{ region_data.total_loan_amount|floatformat:0 }}</div>
+                                        <small class="text-muted">Total Loans</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="text-info fw-bold">UGX {{ region_data.total_savings_balance|floatformat:0 }}</div>
+                                        <small class="text-muted">Total Savings</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="text-warning fw-bold">UGX {{ region_data.total_funding_amount|floatformat:0 }}</div>
+                                        <small class="text-muted">Total Funding</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saccos List -->
+                    <div class="mt-3">
+                        <h6 class="text-muted mb-2">Saccos in Region</h6>
+                        {% if region_data.saccos %}
+                        <div class="table-responsive" style="width: 100%; overflow-x: auto;">
+                            <table class="table table-sm table-hover table-striped data-table" style="width: 100%; min-width: 100%;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 50%;">Sacco Name</th>
+                                        <th style="width: 25%;">Status</th>
+                                        <th style="width: 25%;">Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for sacco in region_data.saccos|slice:":5" %}
+                                    <tr>
+                                        <td>{{ sacco.name }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if sacco.is_active %}success{% else %}danger{% endif %}">
+                                                {% if sacco.is_active %}Active{% else %}Inactive{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>{{ sacco.created_at|date:"M d, Y" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% if region_data.saccos|length > 5 %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">
+                                            <small>And {{ region_data.saccos|length|add:"-5" }} more Saccos...</small>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No Saccos in this region</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class='bx bx-map text-muted' style="font-size: 3rem;"></i>
+                    <h5 class="text-muted mt-3">No Regions Found</h5>
+                    <p class="text-muted">No active regions are available in the system.</p>
+                    <a href="{% url 'manage_regions' %}" class="btn btn-primary">
+                        <i class='bx bx-plus'></i> Create Region
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    <!-- Quick Actions - Redesigned -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm quick-actions">
+                <div class="card-header bg-gradient-primary text-white border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm rounded-circle bg-white bg-soft me-3">
+                            <i class="bx bx-bolt font-size-24 text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="card-title mb-0 text-white">Quick Actions</h4>
+                            <p class="text-white-50 mb-0">Manage your system efficiently</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <!-- Manage Regions -->
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <div class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                            <i class="bx bx-map font-size-24"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">Manage Regions</h5>
+                                    <p class="text-muted mb-4">Create, edit, and organize regions across your system</p>
+                                    <a href="{% url 'manage_regions' %}" class="btn btn-primary btn-xs">
+                                        <i class="bx bx-arrow-right me-1"></i>Go to Regions
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Regional Admins -->
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <div class="avatar-title rounded-circle bg-warning bg-soft text-warning">
+                                            <i class="bx bx-user-check font-size-24"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">Regional Admins</h5>
+                                    <p class="text-muted mb-4">Assign and manage regional administrators</p>
+                                    <a href="{% url 'manage_regional_admins' %}" class="btn btn-warning btn-xs">
+                                        <i class="bx bx-arrow-right me-1"></i>Manage Admins
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manage Saccos -->
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <div class="avatar-title rounded-circle bg-success bg-soft text-success">
+                                            <i class="bx bx-building font-size-24"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">Manage Saccos</h5>
+                                    <p class="text-muted mb-4">Oversee all Saccos and their operations</p>
+                                    <a href="{% url 'manage_saccos' %}" class="btn btn-success btn-xs">
+                                        <i class="bx bx-arrow-right me-1"></i>View Saccos
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Logs -->
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <div class="avatar-title rounded-circle bg-info bg-soft text-info">
+                                            <i class="bx bx-history font-size-24"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title">Activity Logs</h5>
+                                    <p class="text-muted mb-4">Monitor system activities and user actions</p>
+                                    <a href="{% url 'activity_logs' %}" class="btn btn-info btn-xs">
+                                        <i class="bx bx-arrow-right me-1"></i>View Logs
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Quick Actions Row -->
+                    <div class="row g-4 mt-2">
+                        <!-- Create Sacco -->
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="card border-0 bg-gradient-success text-white h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <div class="avatar-title rounded-circle bg-white bg-soft text-success">
+                                            <i class="bx bx-plus font-size-24"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title text-white">Create Sacco</h5>
+                                    <p class="text-white-50 mb-4">Add a new Sacco to the system</p>
+                                    <a href="{% url 'create_sacco' %}" class="btn btn-light btn-xs">
+                                        <i class="bx bx-plus me-1"></i>Create New
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Reports -->
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="card border-0 bg-gradient-dark text-white h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <div class="avatar-title rounded-circle bg-white bg-soft text-dark">
+                                            <i class="bx bx-bar-chart font-size-24"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title text-white">System Reports</h5>
+                                    <p class="text-white-50 mb-4">Generate comprehensive system reports</p>
+                                    <button class="btn btn-light btn-xs" onclick="generateSystemReport()">
+                                        <i class="bx bx-download me-1"></i>Generate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Management -->
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="card border-0 bg-gradient-purple text-white h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <div class="avatar-title rounded-circle bg-white bg-soft text-purple">
+                                            <i class="bx bx-user-cog font-size-24"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title text-white">User Management</h5>
+                                    <p class="text-white-50 mb-4">Manage system users and permissions</p>
+                                    <a href="/admin/" class="btn btn-light btn-xs" target="_blank">
+                                        <i class="bx bx-cog me-1"></i>Admin Panel
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Settings -->
+                        <div class="col-xl-3 col-lg-6 col-md-6">
+                            <div class="card border-0 bg-gradient-secondary text-white h-100">
+                                <div class="card-body text-center p-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <div class="avatar-title rounded-circle bg-white bg-soft text-secondary">
+                                            <i class="bx bx-cog font-size-24"></i>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-title text-white">System Settings</h5>
+                                    <p class="text-white-50 mb-4">Configure system preferences</p>
+                                    <button class="btn btn-light btn-xs" onclick="openSettings()">
+                                        <i class="bx bx-settings me-1"></i>Configure
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Quick Actions JavaScript Functions
+function generateSystemReport() {
+    // Show loading state
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Generating...';
+    btn.disabled = true;
+    
+    // Simulate report generation
+    setTimeout(() => {
+        btn.innerHTML = '<i class="bx bx-check me-1"></i>Generated';
+        btn.classList.remove('btn-light');
+        btn.classList.add('btn-success');
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-light');
+        }, 2000);
+    }, 2000);
+}
+
+function openSettings() {
+    // Show settings modal or redirect to settings page
+    alert('Settings functionality will be implemented soon!');
+}
+
+// Add smooth animations to cards
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.card');
+    
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

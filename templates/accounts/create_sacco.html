@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Create New Sacco{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'manage_saccos' %}">Manage Saccos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Create New Sacco</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class='bx bx-building-house'></i> Create New Sacco
+                </h4>
+                <p class="text-muted mb-0">Register a new Sacco in the system</p>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Sacco Information Section -->
+                    <div class="form-section-header">
+                        <i class='bx bx-info-circle'></i> Sacco Information
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="name" class="form-label">Sacco Name <span class="text-success">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address <span class="text-success">*</span></label>
+                        <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="district" class="form-label">District <span class="text-success">*</span></label>
+                            <select class="form-select" id="district" name="district" required>
+                                <option value="">Select District</option>
+                                {% for district in districts %}
+                                <option value="{{ district.id }}" data-region="{{ district.region.id }}">{{ district.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <!-- Hidden field for region (auto-populated from district) -->
+                        <input type="hidden" id="region" name="region" value="">
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Sacco Administrator Section -->
+                    <div class="form-section-header">
+                        <i class='bx bx-user'></i> Sacco Administrator Details
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="admin_username" class="form-label">Admin Username <span class="text-success">*</span></label>
+                            <input type="text" class="form-control" id="admin_username" name="admin_username" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="admin_email" class="form-label">Admin Email <span class="text-success">*</span></label>
+                            <input type="email" class="form-control" id="admin_email" name="admin_email" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="admin_first_name" class="form-label">First Name <span class="text-success">*</span></label>
+                            <input type="text" class="form-control" id="admin_first_name" name="admin_first_name" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="admin_last_name" class="form-label">Last Name <span class="text-success">*</span></label>
+                            <input type="text" class="form-control" id="admin_last_name" name="admin_last_name" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="admin_password" class="form-label">Admin Password <span class="text-success">*</span></label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="admin_password" name="admin_password" required minlength="8">
+                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('admin_password')">
+                                    <i class='bx bx-show' id="admin_password_icon"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Password must be at least 8 characters long</div>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="admin_password_confirm" class="form-label">Confirm Password <span class="text-success">*</span></label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="admin_password_confirm" name="admin_password_confirm" required>
+                                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('admin_password_confirm')">
+                                    <i class='bx bx-show' id="admin_password_confirm_icon"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class='bx bx-arrow-back'></i> Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class='bx bx-save'></i> Create Sacco
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Password visibility toggle
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById(fieldId + '_icon');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.className = 'bx bx-hide';
+    } else {
+        field.type = 'password';
+        icon.className = 'bx bx-show';
+    }
+}
+
+// Password confirmation validation
+function validatePasswordMatch() {
+    const password = document.getElementById('admin_password').value;
+    const confirmPassword = document.getElementById('admin_password_confirm').value;
+    const confirmField = document.getElementById('admin_password_confirm');
+    
+    if (confirmPassword && password !== confirmPassword) {
+        confirmField.setCustomValidity('Passwords do not match');
+        confirmField.classList.add('is-invalid');
+    } else {
+        confirmField.setCustomValidity('');
+        confirmField.classList.remove('is-invalid');
+    }
+}
+
+// Auto-populate region from district selection
+function updateRegionFromDistrict() {
+    const districtSelect = document.getElementById('district');
+    const regionInput = document.getElementById('region');
+    const selectedDistrictId = districtSelect.value;
+    
+    if (selectedDistrictId) {
+        const selectedOption = districtSelect.options[districtSelect.selectedIndex];
+        const regionId = selectedOption.getAttribute('data-region');
+        if (regionId) {
+            regionInput.value = regionId;
+        }
+    } else {
+        regionInput.value = '';
+    }
+}
+
+// Form validation with dynamic messages
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        // Add district change listener to auto-populate region
+        const districtSelect = document.getElementById('district');
+        if (districtSelect) {
+            districtSelect.addEventListener('change', updateRegionFromDistrict);
+        }
+        
+        // Add password confirmation validation
+        document.getElementById('admin_password').addEventListener('input', validatePasswordMatch);
+        document.getElementById('admin_password_confirm').addEventListener('input', validatePasswordMatch);
+        
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                // Validate password match before form submission
+                validatePasswordMatch();
+                
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    // Add dynamic validation messages
+                    var invalidFields = form.querySelectorAll(':invalid');
+                    invalidFields.forEach(function(field) {
+                        var feedback = field.parentNode.querySelector('.invalid-feedback');
+                        if (feedback) {
+                            var fieldName = field.getAttribute('name') || field.getAttribute('id');
+                            var label = field.parentNode.querySelector('label').textContent.replace('*', '').trim();
+                            
+                            if (field.validity.valueMissing) {
+                                feedback.textContent = 'Please provide a valid ' + label.toLowerCase() + '.';
+                            } else if (field.validity.typeMismatch) {
+                                feedback.textContent = 'Please enter a valid ' + label.toLowerCase() + '.';
+                            } else if (field.validity.tooShort) {
+                                feedback.textContent = 'Password must be at least 8 characters long.';
+                            } else if (field.validity.customError) {
+                                feedback.textContent = field.validationMessage;
+                            } else {
+                                feedback.textContent = 'Please provide a valid ' + label.toLowerCase() + '.';
+                            }
+                        }
+                    });
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

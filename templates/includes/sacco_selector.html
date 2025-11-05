@@ -1,0 +1,73 @@
+{% load static %}
+<!-- Sacco Selector Component -->
+<div class="card mb-4 border-primary shadow-sm" style="border-left: 4px solid #007bff !important;">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <label for="sacco-selector" class="form-label mb-2 fw-bold text-primary">
+                    <i class='bx bx-building'></i> Viewing Data For:
+                </label>
+                {% if selected_sacco %}
+                <div class="mt-2">
+                    <div class="alert alert-primary mb-0 py-2 px-3">
+                        <strong>
+                            <i class='bx bx-check-circle'></i> {{ selected_sacco.name }}
+                        </strong>
+                        {% if selected_sacco.district %}
+                        <br><small class="text-muted">{{ selected_sacco.district.name }}
+                        {% if selected_sacco.registration_number %}
+                        | Reg: {{ selected_sacco.registration_number }}
+                        {% endif %}
+                        </small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="mt-2">
+                    <div class="alert alert-info mb-0 py-2 px-3">
+                        <strong><i class='bx bx-info-circle'></i> All Saccos</strong>
+                        <br><small class="text-muted">Showing data from all accessible Saccos</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-7">
+                <label for="sacco-selector" class="form-label mb-2 fw-bold">
+                    <i class='bx bx-filter-alt text-secondary'></i> Filter by Sacco:
+                </label>
+                <select class="form-select form-select-lg border-primary" id="sacco-selector" name="sacco" onchange="filterBySacco(this.value)" style="font-size: 1rem;">
+                    <option value="">-- Show All Saccos --</option>
+                    {% for sacco in accessible_saccos %}
+                    <option value="{{ sacco.id }}" {% if selected_sacco_id and selected_sacco_id|stringformat:"s" == sacco.id|stringformat:"s" %}selected{% endif %}>
+                        {{ sacco.name }} {% if sacco.district %}({{ sacco.district.name }}){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterBySacco(saccoId) {
+    const url = new URL(window.location.href);
+    if (saccoId) {
+        url.searchParams.set('sacco', saccoId);
+    } else {
+        url.searchParams.delete('sacco');
+    }
+    window.location.href = url.toString();
+}
+
+// Ensure selected sacco is properly set on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const saccoParam = urlParams.get('sacco');
+    const selectElement = document.getElementById('sacco-selector');
+    if (saccoParam && selectElement) {
+        // Set the selected value without triggering change event
+        selectElement.value = saccoParam;
+    }
+});
+</script>
+

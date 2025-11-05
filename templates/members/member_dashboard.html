@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Member Dashboard{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Member Dashboard</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4>Welcome, {{ member.full_name }}!</h4>
+                <p class="text-muted mb-0">Member Number: {{ member.member_number }}</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success fs-6">{{ member.status|title }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Member Information Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-user'></i> Member Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ member.full_name }}</p>
+                        <p><strong>Email:</strong> {{ member.email }}</p>
+                        <p><strong>Phone:</strong> {{ member.phone }}</p>
+                        <p><strong>ID Number:</strong> {{ member.id_number }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Occupation:</strong> {{ member.occupation }}</p>
+                        <p><strong>Monthly Income:</strong> {{ member.monthly_income|ugx|default:"Not specified" }}</p>
+                        <p><strong>Date Joined:</strong> {{ member.date_joined|date:"M d, Y" }}</p>
+                        <p><strong>Status:</strong> <span class="badge bg-success">{{ member.status|title }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Overview -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-wallet'></i> Savings Accounts
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if savings_accounts %}
+                    {% for account in savings_accounts %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ account.product.name }}</strong><br>
+                            <small class="text-muted">Account #{{ account.account_number }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold text-success">{{ account.balance|ugx }}</span>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<hr>{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No savings accounts found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-credit-card'></i> Active Loans
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if loans %}
+                    {% for loan in loans %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ loan.product.name }}</strong><br>
+                            <small class="text-muted">Loan #{{ loan.loan_number }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold text-primary">{{ loan.amount|ugx }}</span><br>
+                            <small class="text-muted">{{ loan.status|title }}</small>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<hr>{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No active loans found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-menu'></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="#" class="btn btn-outline-primary w-100">
+                            <i class='bx bx-wallet'></i><br>
+                            <small>View Savings</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="#" class="btn btn-outline-success w-100">
+                            <i class='bx bx-credit-card'></i><br>
+                            <small>Apply for Loan</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="#" class="btn btn-outline-info w-100">
+                            <i class='bx bx-receipt'></i><br>
+                            <small>View Statements</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="#" class="btn btn-outline-warning w-100">
+                            <i class='bx bx-cog'></i><br>
+                            <small>Update Profile</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

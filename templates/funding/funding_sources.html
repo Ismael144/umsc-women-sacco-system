@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Funding Sources{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'funding_list' %}">Funding Management</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Funding Sources</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSourceModal" onclick="console.log('Add Source button clicked')">
+        <i class='bx bx-plus'></i> Add Source
+    </button>
+    
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Contact Person</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for source in sources %}
+                    <tr>
+                        <td>{{ source.name }}</td>
+                        <td>{{ source.contact_person }}</td>
+                        <td>{{ source.email }}</td>
+                        <td>{{ source.phone }}</td>
+                        <td>
+                            <span class="badge bg-{% if source.is_active %}success{% else %}danger{% endif %}">
+                                {% if source.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_funding_source' source.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class='bx bx-edit'></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No funding sources found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Source Modal -->
+<div class="modal fade" id="addSourceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'add_funding_source' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Funding Source</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name *</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contact Person</label>
+                        <input type="text" class="form-control" name="contact_person">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control phone-mask" name="phone" 
+                               placeholder="+256 XXX XXX XXX or 0XXX XXX XXX">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Source</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Funding sources page loaded');
+    
+    // Check if modal exists
+    const modal = document.getElementById('addSourceModal');
+    if (modal) {
+        console.log('Modal found:', modal);
+    } else {
+        console.log('Modal NOT found!');
+    }
+    
+    // Check if button exists
+    const button = document.querySelector('[data-bs-target="#addSourceModal"]');
+    if (button) {
+        console.log('Button found:', button);
+    } else {
+        console.log('Button NOT found!');
+    }
+});
+</script>
+{% endblock %}
+
+
+
+
+
+

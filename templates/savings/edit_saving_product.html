@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Edit Saving Product{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'savings_accounts' %}">Savings</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'saving_products' %}">Saving Products</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Saving Product</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-edit'></i> Edit Saving Product: {{ product.name }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Product Name and Code -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                Product Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.product_code.id_for_label }}" class="form-label">
+                                Product Code <span class="text-danger">*</span>
+                            </label>
+                            {{ form.product_code }}
+                            {% if form.product_code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.product_code.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Interest Rate and Minimum Balance -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.interest_rate.id_for_label }}" class="form-label">
+                                Interest Rate (%) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                {{ form.interest_rate }}
+                                <span class="input-group-text">%</span>
+                            </div>
+                            {% if form.interest_rate.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.interest_rate.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.minimum_balance.id_for_label }}" class="form-label">
+                                Minimum Balance <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">UGX</span>
+                                {{ form.minimum_balance }}
+                            </div>
+                            {% if form.minimum_balance.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.minimum_balance.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Maximum Balance and Term Product -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.max_balance.id_for_label }}" class="form-label">
+                                Maximum Balance
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">UGX</span>
+                                {{ form.max_balance }}
+                            </div>
+                            {% if form.max_balance.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.max_balance.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check mt-4">
+                                {{ form.is_term_product }}
+                                <label class="form-check-label" for="{{ form.is_term_product.id_for_label }}">
+                                    Term Product
+                                </label>
+                            </div>
+                            {% if form.is_term_product.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.is_term_product.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Term Months and Active Status -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.term_months.id_for_label }}" class="form-label">
+                                Term (Months)
+                            </label>
+                            {{ form.term_months }}
+                            {% if form.term_months.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.term_months.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check mt-4">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active Product
+                                </label>
+                            </div>
+                            {% if form.is_active.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.is_active.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            Description <span class="text-danger">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'saving_products' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class='bx bx-save'></i> Update Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}My Profile{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">My Profile</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <div class="avatar-lg mx-auto mb-3" style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                            <i class='bx bx-user text-white' style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 class="mb-1">{{ profile_user.get_full_name|default:profile_user.username }}</h4>
+                        <p class="text-muted mb-2">{{ role }}</p>
+                        {% if profile_user.sacco %}
+                        <span class="badge bg-primary">{{ profile_user.sacco.name }}</span>
+                        {% elif profile_user.region %}
+                        <span class="badge bg-info">{{ profile_user.region.name }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <label class="text-muted small">Username</label>
+                            <p class="mb-0 fw-bold">{{ profile_user.username }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small">Email Address</label>
+                            <p class="mb-0">{{ profile_user.email|default:"Not provided" }}</p>
+                        </div>
+                        
+                        {% if profile_user.phone %}
+                        <div class="mb-3">
+                            <label class="text-muted small">Phone Number</label>
+                            <p class="mb-0">{{ profile_user.phone }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small">Account Status</label>
+                            <p class="mb-0">
+                                {% if profile_user.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small">Member Since</label>
+                            <p class="mb-0">{{ profile_user.date_joined|date:"F d, Y" }}</p>
+                        </div>
+                        
+                        {% if profile_user.last_login %}
+                        <div class="mb-3">
+                            <label class="text-muted small">Last Login</label>
+                            <p class="mb-0">{{ profile_user.last_login|date:"F d, Y g:i A" }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics and Activity -->
+        <div class="col-lg-8">
+            <!-- Statistics Cards -->
+            {% if stats %}
+            <div class="row mb-4">
+                {% if stats.total_members %}
+                <div class="col-md-4 mb-3">
+                    <div class="card border-left-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-primary mb-1">Total Members</h6>
+                                    <h3 class="mb-0">{{ stats.total_members }}</h3>
+                                </div>
+                                <i class='bx bx-group text-primary' style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if stats.total_loans %}
+                <div class="col-md-4 mb-3">
+                    <div class="card border-left-info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-info mb-1">Total Loans</h6>
+                                    <h3 class="mb-0">{{ stats.total_loans }}</h3>
+                                </div>
+                                <i class='bx bx-credit-card text-info' style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if stats.total_savings %}
+                <div class="col-md-4 mb-3">
+                    <div class="card border-left-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-success mb-1">Total Savings</h6>
+                                    <h3 class="mb-0">{{ stats.total_savings }}</h3>
+                                </div>
+                                <i class='bx bx-wallet text-success' style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if stats.total_regions %}
+                <div class="col-md-4 mb-3">
+                    <div class="card border-left-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-warning mb-1">Total Regions</h6>
+                                    <h3 class="mb-0">{{ stats.total_regions }}</h3>
+                                </div>
+                                <i class='bx bx-map text-warning' style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if stats.total_saccos %}
+                <div class="col-md-4 mb-3">
+                    <div class="card border-left-secondary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-secondary mb-1">Total Saccos</h6>
+                                    <h3 class="mb-0">{{ stats.total_saccos }}</h3>
+                                </div>
+                                <i class='bx bx-building text-secondary' style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if stats.total_users %}
+                <div class="col-md-4 mb-3">
+                    <div class="card border-left-danger">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-danger mb-1">Total Users</h6>
+                                    <h3 class="mb-0">{{ stats.total_users }}</h3>
+                                </div>
+                                <i class='bx bx-user-circle text-danger' style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class='bx bx-history'></i> Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activities %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-{% if activity.action == 'create' %}success{% elif activity.action == 'update' %}info{% elif activity.action == 'delete' %}danger{% else %}secondary{% endif %}">
+                                            {{ activity.get_action_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ activity.model_name }}</strong>
+                                        {% if activity.object_name %}
+                                        - {{ activity.object_name }}
+                                        {% endif %}
+                                        <br>
+                                        <small class="text-muted">{{ activity.description }}</small>
+                                    </td>
+                                    <td>
+                                        <small>{{ activity.timestamp|date:"M d, Y g:i A" }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class='bx bx-history text-muted' style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-3">No recent activity</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 4px solid #667eea;
+}
+
+.border-left-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.border-left-success {
+    border-left: 4px solid #28a745;
+}
+
+.border-left-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.border-left-secondary {
+    border-left: 4px solid #6c757d;
+}
+
+.border-left-danger {
+    border-left: 4px solid #dc3545;
+}
+
+.avatar-lg {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+</style>
+{% endblock %}
+

@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Expense Statistics{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'expenses_list' %}">Expense Management</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Expense Statistics</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Back Button -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'expenses_list' %}" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class='bx bx-left-arrow-alt me-2'></i>Back to Expenses
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white border-0 shadow-lg h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0 fw-bold">{{ total_expenses|ugx }}</h4>
+                            <p class="mb-0 opacity-75">Total Expenses</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class='bx bx-money-withdraw' style="font-size: 2.5rem; opacity: 0.8;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-info text-white border-0 shadow-lg h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0 fw-bold">{{ expense_count }}</h4>
+                            <p class="mb-0 opacity-75">Total Transactions</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class='bx bx-receipt' style="font-size: 2.5rem; opacity: 0.8;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white border-0 shadow-lg h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0 fw-bold">
+                                {% if expense_count > 0 %}
+                                    {% widthratio total_expenses 1 expense_count as avg_expense %}
+                                    UGX {{ avg_expense|floatformat:0 }}
+                                {% else %}
+                                    UGX 0
+                                {% endif %}
+                            </h4>
+                            <p class="mb-0 opacity-75">Average per Transaction</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class='bx bx-calculator' style="font-size: 2.5rem; opacity: 0.8;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-success text-white border-0 shadow-lg h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0 fw-bold">{{ all_categories.count }}</h4>
+                            <p class="mb-0 opacity-75">Categories</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class='bx bx-category' style="font-size: 2.5rem; opacity: 0.8;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-medium">Time Period</label>
+                            <select name="period" class="form-select form-select-lg" onchange="this.form.submit()">
+                                <option value="week" {% if current_period == 'week' %}selected{% endif %}>Last 7 Days</option>
+                                <option value="month" {% if current_period == 'month' %}selected{% endif %}>Last 30 Days</option>
+                                <option value="year" {% if current_period == 'year' %}selected{% endif %}>Last Year</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-medium">Category</label>
+                            <select name="category" class="form-select form-select-lg" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                {% for category in all_categories %}
+                                    <option value="{{ category.id }}" {% if current_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-md-12 d-flex align-items-end">
+                            <a href="{% url 'expense_statistics' %}" class="btn btn-outline-secondary btn-lg w-100">
+                                <i class='bx bx-x me-2'></i>Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <div class="col-xl-8 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class='bx bx-bar-chart-alt-2 text-primary me-2'></i>
+                        Daily Expenses Trend
+                    </h5>
+                    <small class="text-muted">Last 7 days spending pattern</small>
+                </div>
+                <div class="card-body">
+                    <canvas id="dailyChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class='bx bx-pie-chart-alt-2 text-success me-2'></i>
+                        Category Breakdown
+                    </h5>
+                    <small class="text-muted">Spending by category</small>
+                </div>
+                <div class="card-body">
+                    {% for stat in category_stats %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-medium text-dark">{{ stat.category__name|default:"Uncategorized" }}</span>
+                                <span class="fw-bold text-dark">{{ stat.total|ugx }}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                {% if total_expenses > 0 %}
+                                    {% widthratio stat.total total_expenses 100 as percentage %}
+                                {% else %}
+                                    {% widthratio 0 1 0 as percentage %}
+                                {% endif %}
+                                <div class="progress-bar bg-gradient" role="progressbar" 
+                                     style="width: {{ percentage }}%; background: linear-gradient(45deg, #4a7c59, #6c9b7b);"
+                                     aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">{{ stat.count }} transaction{{ stat.count|pluralize }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <i class='bx bx-pie-chart text-muted' style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">No expenses in this period</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Daily Expenses Chart
+const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+const dailyChart = new Chart(dailyCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for day in daily_expenses %}'{{ day.day }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Daily Expenses',
+            data: [{% for day in daily_expenses %}{{ day.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: 'rgba(74, 124, 89, 0.1)',
+            borderColor: 'rgba(74, 124, 89, 1)',
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: 'white',
+                bodyColor: 'white',
+                borderColor: 'rgba(74, 124, 89, 1)',
+                borderWidth: 1,
+                cornerRadius: 8,
+                callbacks: {
+                    label: function(context) {
+                        return 'UGX ' + context.parsed.y.toLocaleString();
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#6c757d'
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                },
+                ticks: {
+                    color: '#6c757d',
+                    callback: function(value) {
+                        return 'UGX ' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+<style>
+.bg-gradient {
+    background: linear-gradient(45deg, #4a7c59, #6c9b7b) !important;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+</style>
+{% endblock %}
+
+
+
+
+
+
+
+

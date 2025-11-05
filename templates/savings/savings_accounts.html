@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Savings Accounts{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Savings Accounts</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+{% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+<div class="d-flex justify-content-between mb-4">
+    <div>
+        {% if selected_sacco %}
+        <h5 class="mb-0">Savings Accounts - {{ selected_sacco.name }}</h5>
+        {% else %}
+        <h5 class="mb-0">Savings Accounts</h5>
+        {% endif %}
+    </div>
+    <div class="btn-group">
+        <a href="{% url 'create_savings_account' %}" class="btn btn-primary">
+            <i class='bx bx-plus'></i> Create Account
+        </a>
+        <a href="?export=csv{% if selected_sacco_id %}&sacco={{ selected_sacco_id }}{% endif %}" class="btn btn-outline-success">
+            <i class='bx bx-download'></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Account #</th>
+                        <th>Member</th>
+                        {% if accessible_saccos|length > 1 %}
+                        <th>Sacco</th>
+                        {% endif %}
+                        <th>Product</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for account in accounts %}
+                    <tr>
+                        <td>{{ account.account_number }}</td>
+                        <td>{{ account.member.full_name }}</td>
+                        {% if accessible_saccos|length > 1 %}
+                        <td>{{ account.member.sacco.name|default:"N/A" }}</td>
+                        {% endif %}
+                        <td>{{ account.product.name }}</td>
+                        <td>{{ account.balance|ugx }}</td>
+                        <td>
+                            <span class="badge bg-{% if account.is_active %}success{% else %}danger{% endif %}">
+                                {% if account.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td>{{ account.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'savings_statements' %}?account={{ account.id }}" class="btn btn-sm btn-outline-primary">
+                                    <i class='bx bx-show'></i> View
+                                </a>
+                                <a href="{% url 'edit_savings_account' account.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class='bx bx-edit'></i> Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if accessible_saccos|length > 1 %}8{% else %}7{% endif %}" class="text-center">No savings accounts found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

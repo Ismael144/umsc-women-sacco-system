@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}Member Report{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports_index' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Member Report</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+    <button class="btn btn-primary">
+        <i class='bx bx-download'></i> Export Report
+    </button>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-user fs-1'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0">{{ stats.total_members }}</h3>
+                        <small>Total Members</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-check-circle fs-1'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0">{{ stats.active_members }}</h3>
+                        <small>Active Members</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-user-plus fs-1'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0">{{ stats.new_this_month }}</h3>
+                        <small>New This Month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-user-x fs-1'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0">{{ stats.inactive_members }}</h3>
+                        <small>Inactive</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Recent Members</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Member #</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Join Date</th>
+                        <th>Status</th>
+                        <th>Savings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in stats.recent_members %}
+                    <tr>
+                        <td>{{ member.member_number }}</td>
+                        <td>{{ member.full_name }}</td>
+                        <td>{{ member.email|default:"-" }}</td>
+                        <td>{{ member.phone }}</td>
+                        <td>{{ member.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if member.status == 'Active' %}bg-success
+                                {% elif member.status == 'Inactive' %}bg-warning
+                                {% elif member.status == 'Suspended' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ member.status }}
+                            </span>
+                        </td>
+                        <td>{{ member.savings_balance|ugx }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No members found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Status Breakdown -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Member Status Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for status in stats.status_breakdown %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h4 class="text-primary">{{ status.count }}</h4>
+                                <p class="mb-0">{{ status.status|title }} Members</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <p class="text-muted text-center">No member data available</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Member Report Card Styles */
+.card.bg-primary, .card.bg-success, .card.bg-info, .card.bg-warning {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.card.bg-primary:hover, .card.bg-success:hover, .card.bg-info:hover, .card.bg-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card.bg-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.card.bg-success {
+    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+}
+
+.card.bg-info {
+    background: linear-gradient(135deg, #17a2b8, #117a8b) !important;
+}
+
+.card.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+}
+
+/* Status breakdown cards */
+.card.bg-light {
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.card.bg-light:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styling */
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 0.75em;
+    padding: 0.5em 0.75em;
+}
+</style>
+{% endblock %}

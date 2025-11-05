@@ -1,0 +1,52 @@
+{% comment %}
+Success alert component for better UX
+Usage: {% include 'components/success_alert.html' with title="Success!" message="Member added successfully" next_action="Add Another Member" next_url="members:register_member" %}
+{% endcomment %}
+
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="bx bx-check-circle me-3" style="font-size: 1.5rem;"></i>
+        <div class="flex-grow-1">
+            <h6 class="alert-heading mb-1">{{ title|default:"Success!" }}</h6>
+            <p class="mb-0">{{ message }}</p>
+            {% if next_action and next_url %}
+            <div class="mt-2">
+                <a href="{% url next_url %}" class="btn btn-sm btn-outline-success">
+                    <i class="bx bx-plus me-1"></i>
+                    {{ next_action }}
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<style>
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.alert-success {
+    background-color: #d1edff;
+    color: #0c5460;
+    border-left: 4px solid #28a745;
+}
+
+.alert-heading {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+</style>
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,788 @@
+{% extends 'base.html' %}
+{% load currency %}
+
+{% block page_title %}System Administrator Dashboard{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">System Administrator Dashboard</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Welcome Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="mb-2 text-dark">
+                            <i class='bx bx-shield-quarter text-primary'></i> System Administrator Dashboard
+                        </h2>
+                        <p class="mb-0 text-muted">Comprehensive overview of all Saccos and system-wide statistics</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'create_sacco' %}" class="btn btn-primary btn-sm">
+                                <i class='bx bx-plus'></i> Create Sacco
+                            </a>
+                            <button class="btn btn-outline-primary btn-sm" onclick="generateSystemReport()">
+                                <i class='bx bx-download'></i> Export Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-left-primary">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-building fs-1 text-primary'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0 text-dark">{{ total_saccos }}</h3>
+                        <small class="text-muted">Total Saccos</small>
+                        <div class="mt-2">
+                            <small class="d-block">
+                                <span class="badge bg-success">{{ active_saccos }} Active</span>
+                                <span class="badge bg-danger ms-1">{{ inactive_saccos }} Inactive</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-success">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-group fs-1 text-success'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0 text-dark">{{ total_members|floatformat:0 }}</h3>
+                        <small class="text-muted">Total Members</small>
+                        <div class="mt-2">
+                            <small class="d-block">
+                                <span class="badge bg-success">{{ active_members }} Active</span>
+                                <span class="badge bg-warning text-dark ms-1">{{ new_members_this_month }} New</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-info">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-credit-card fs-1 text-info'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0 text-dark">{{ total_loans }}</h3>
+                        <small class="text-muted">Total Loans</small>
+                        <div class="mt-2">
+                            <small class="d-block">
+                                <span class="badge bg-warning text-dark">{{ pending_loans }} Pending</span>
+                                <span class="badge bg-success ms-1">{{ active_loans }} Active</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-warning">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-wallet fs-1 text-warning'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h3 class="mb-0 text-dark">{{ total_savings }}</h3>
+                        <small class="text-muted">Total Savings Accounts</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-left-success">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-wallet fs-1 text-success'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mb-0 text-dark">{{ total_savings_balance|ugx }}</h4>
+                        <small class="text-muted">Total Savings Balance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-warning">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-credit-card fs-1 text-warning'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mb-0 text-dark">{{ total_loan_amount|ugx }}</h4>
+                        <small class="text-muted">Total Loan Amount</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-info">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-money fs-1 text-info'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mb-0 text-dark">{{ total_funding_amount|ugx }}</h4>
+                        <small class="text-muted">Total Funding</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-primary">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class='bx bx-trending-up fs-1 text-primary'></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4 class="mb-0 {% if net_worth < 0 %}text-danger{% else %}text-dark{% endif %}">{{ net_worth|ugx }}</h4>
+                        <small class="text-muted">Net Worth</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class='bx bx-bolt text-primary'></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{% url 'regional_overview' %}" class="btn btn-info w-100">
+                            <i class='bx bx-map me-2'></i>Regional Overview
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{% url 'manage_regions' %}" class="btn btn-outline-info w-100">
+                            <i class='bx bx-cog me-2'></i>Manage Regions
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{% url 'manage_regional_admins' %}" class="btn btn-warning w-100">
+                            <i class='bx bx-user-check me-2'></i>Regional Admins
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{% url 'manage_saccos' %}" class="btn btn-success w-100">
+                            <i class='bx bx-building me-2'></i>Manage Saccos
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <a href="{% url 'activity_logs' %}" class="btn btn-secondary w-100">
+                            <i class='bx bx-history me-2'></i>Activity Logs
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                        <button class="btn btn-dark w-100" onclick="generateSystemReport()">
+                            <i class='bx bx-bar-chart me-2'></i>System Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Alerts and Recent Activity -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class='bx bx-bell text-warning'></i> System Alerts
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if system_alerts %}
+                    {% for alert in system_alerts %}
+                    <div class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
+                        <i class='bx {{ alert.icon }}'></i>
+                        {{ alert.message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class='bx bx-check-circle text-success' style="font-size: 2.5rem;"></i>
+                        <p class="text-muted mt-2 mb-0">All systems operating normally</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class='bx bx-trending-up text-info'></i> Recent Activity (30 Days)
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h4 class="text-primary mb-1">{{ recent_members_count }}</h4>
+                                <small class="text-muted">New Members</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h4 class="text-warning mb-1">{{ recent_loans_count }}</h4>
+                                <small class="text-muted">New Loans</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h4 class="text-success mb-1">{{ recent_savings_count }}</h4>
+                                <small class="text-muted">New Savings</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Charts -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class='bx bx-line-chart text-primary'></i> Member Growth Trend
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="memberGrowthChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class='bx bx-pie-chart text-info'></i> Loan Status Distribution
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="loanStatusChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sacco Management Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class='bx bx-building text-primary'></i> Sacco Management & Reports
+                    </h5>
+                    <a href="{% url 'create_sacco' %}" class="btn btn-primary btn-sm">
+                        <i class='bx bx-plus'></i> Create Sacco
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if saccos_with_stats %}
+                <div class="table-responsive">
+                    <table class="table table-hover data-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sacco Details</th>
+                                <th class="text-center">Members</th>
+                                <th class="text-center">Loans</th>
+                                <th class="text-center">Savings</th>
+                                <th class="text-center">Funding</th>
+                                <th>Financial Health</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in saccos_with_stats %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.sacco.name }}</strong>
+                                    <br><small class="text-muted">
+                                        <code>{{ item.sacco.registration_number }}</code>
+                                        {% if item.sacco.email %} | {{ item.sacco.email }}{% endif %}
+                                    </small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info">{{ item.total_members }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-warning">{{ item.total_loans }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">{{ item.total_savings }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary">{{ item.total_funding }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column" style="gap: 4px;">
+                                        <small class="text-success">Savings: {{ item.total_savings_balance|ugx }}</small>
+                                        <small class="text-warning">Loans: {{ item.total_loan_amount|ugx }}</small>
+                                        {% if item.total_savings_balance > item.total_loan_amount %}
+                                            <span class="badge bg-success" style="width: fit-content;">Healthy</span>
+                                        {% else %}
+                                            <span class="badge bg-warning" style="width: fit-content;">At Risk</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-{% if item.sacco.is_active %}success{% else %}danger{% endif %}">
+                                        {% if item.sacco.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{% url 'manage_saccos' %}?sacco={{ item.sacco.id }}" class="btn btn-outline-primary btn-sm" title="View Details">
+                                            <i class='bx bx-show'></i>
+                                        </a>
+                                        <a href="{% url 'manage_saccos' %}?edit={{ item.sacco.id }}" class="btn btn-outline-success btn-sm" title="Edit">
+                                            <i class='bx bx-edit'></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class='bx bx-building text-muted' style="font-size: 4rem;"></i>
+                    <h5 class="text-muted mt-3">No Saccos registered yet</h5>
+                    <p class="text-muted">Start by creating your first Sacco</p>
+                    <a href="{% url 'create_sacco' %}" class="btn btn-primary">
+                        <i class='bx bx-plus'></i> Create First Sacco
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Tables - Full Width -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class='bx bx-user-plus text-primary'></i> Recent Members
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if recent_members %}
+                <div class="table-responsive">
+                    <table class="table table-hover data-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Member</th>
+                                <th>Sacco</th>
+                                <th>Member Number</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Date Joined</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in recent_members %}
+                            <tr>
+                                <td>
+                                    <strong>{{ member.first_name }} {{ member.last_name }}</strong>
+                                    {% if member.other_names %}
+                                        <br><small class="text-muted">{{ member.other_names }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ member.sacco.name }}</span>
+                                </td>
+                                <td>
+                                    <code>{{ member.member_number }}</code>
+                                </td>
+                                <td>
+                                    {% if member.phone %}
+                                        <small>{{ member.phone }}</small>
+                                    {% else %}
+                                        <small class="text-muted">No phone</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if member.email %}
+                                        <small>{{ member.email }}</small>
+                                    {% else %}
+                                        <small class="text-muted">No email</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{{ member.date_joined|date:"M d, Y" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if member.status == 'Active' %}success{% elif member.status == 'Inactive' %}danger{% else %}warning{% endif %}">
+                                        {{ member.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class='bx bx-user text-muted' style="font-size: 2rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No recent members</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class='bx bx-credit-card text-info'></i> Recent Loans
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if recent_loans %}
+                <div class="table-responsive">
+                    <table class="table table-hover data-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Member</th>
+                                <th>Sacco</th>
+                                <th>Loan Number</th>
+                                <th>Amount Requested</th>
+                                <th>Purpose</th>
+                                <th>Application Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loan in recent_loans %}
+                            <tr>
+                                <td>
+                                    <strong>{{ loan.member.first_name }} {{ loan.member.last_name }}</strong>
+                                    <br><small class="text-muted">{{ loan.member.member_number }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ loan.member.sacco.name }}</span>
+                                </td>
+                                <td>
+                                    <code>{{ loan.loan_number|default:"N/A" }}</code>
+                                </td>
+                                <td><strong>{{ loan.amount_requested|ugx }}</strong></td>
+                                <td>
+                                    <small>{{ loan.purpose|truncatechars:50|default:"N/A" }}</small>
+                                </td>
+                                <td>
+                                    <small>{{ loan.application_date|date:"M d, Y" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if loan.status == 'approved' %}bg-success
+                                        {% elif loan.status == 'pending' or loan.status == 'pending_approval' %}bg-warning
+                                        {% elif loan.status == 'rejected' or loan.status == 'declined' %}bg-danger
+                                        {% elif loan.status == 'disbursed' %}bg-primary
+                                        {% else %}bg-info{% endif %}">
+                                        {{ loan.status|title }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class='bx bx-credit-card text-muted' style="font-size: 2rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No recent loans</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="mb-0">
+                    <i class='bx bx-wallet text-success'></i> Recent Savings
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if recent_savings %}
+                <div class="table-responsive">
+                    <table class="table table-hover data-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Member</th>
+                                <th>Sacco</th>
+                                <th>Account Number</th>
+                                <th>Account Type</th>
+                                <th>Balance</th>
+                                <th>Created Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for saving in recent_savings %}
+                            <tr>
+                                <td>
+                                    <strong>{{ saving.member.first_name }} {{ saving.member.last_name }}</strong>
+                                    <br><small class="text-muted">{{ saving.member.member_number }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ saving.member.sacco.name }}</span>
+                                </td>
+                                <td>
+                                    <code>{{ saving.account_number }}</code>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ saving.product.name|default:"N/A" }}</span>
+                                </td>
+                                <td><strong>{{ saving.balance|ugx }}</strong></td>
+                                <td>
+                                    <small>{{ saving.created_at|date:"M d, Y" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if saving.is_active %}success{% else %}danger{% endif %}">
+                                        {% if saving.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class='bx bx-wallet text-muted' style="font-size: 2rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No recent savings</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Admin Dashboard Card Styles */
+.card {
+    background: white;
+    border: 1px solid #e3e6f0;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2);
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #007bff !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #28a745 !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #17a2b8 !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #ffc107 !important;
+}
+
+/* Table styling */
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 0.75em;
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+}
+
+/* Shadow for cards */
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Member Growth Chart
+const memberGrowthCtx = document.getElementById('memberGrowthChart');
+if (memberGrowthCtx) {
+    const memberGrowthChart = new Chart(memberGrowthCtx.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: [
+                {% for growth in member_growth %}
+                    '{{ growth.month }}'{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'New Members',
+                data: [
+                    {% for growth in member_growth %}
+                        {{ growth.count }}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Loan Status Distribution Chart
+const loanStatusCtx = document.getElementById('loanStatusChart');
+if (loanStatusCtx) {
+    const loanStatusChart = new Chart(loanStatusCtx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Approved', 'Rejected', 'Active'],
+            datasets: [{
+                data: [
+                    {{ loan_status_distribution.pending }},
+                    {{ loan_status_distribution.approved }},
+                    {{ loan_status_distribution.rejected }},
+                    {{ loan_status_distribution.active }}
+                ],
+                backgroundColor: [
+                    '#ffc107',
+                    '#28a745',
+                    '#dc3545',
+                    '#17a2b8'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function generateSystemReport() {
+    // Generate and download system report CSV
+    window.location.href = '{% url "admin_dashboard" %}?export=csv';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Member Groups{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}"><i class='bx bx-home'></i> Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'member_list' %}">Members</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Member Groups</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+{% if accessible_saccos and accessible_saccos|length > 0 %}
+    {% include 'includes/sacco_selector.html' %}
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        {% if selected_sacco %}
+        <h5 class="mb-0">Member Groups - {{ selected_sacco.name }}</h5>
+        {% else %}
+        <h5 class="mb-0">Member Groups</h5>
+        {% endif %}
+    </div>
+    <div>
+        <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createGroupForm" aria-expanded="false">
+            <i class='bx bx-plus'></i> Create Group
+        </button>
+    </div>
+</div>
+
+<!-- Create Group Form -->
+<div class="collapse mb-4" id="createGroupForm">
+    <div class="form-container">
+        <div class="form-card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class='bx bx-plus-circle'></i> Create New Group
+                </h5>
+                <p class="text-muted mb-0">Add a new member group to organize members</p>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    {% if accessible_saccos and accessible_saccos|length > 1 %}
+                    <input type="hidden" name="sacco" value="{{ selected_sacco_id }}">
+                    {% endif %}
+                    
+                    <div class="form-section-header">
+                        <i class='bx bx-info-circle'></i> Group Information
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                Group Name <span class="text-success">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.code.id_for_label }}" class="form-label">
+                                Group Code <span class="text-success">*</span>
+                            </label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.code.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.leader.id_for_label }}" class="form-label">
+                                Group Leader
+                            </label>
+                            {{ form.leader }}
+                            {% if form.leader.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.leader.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.meeting_frequency.id_for_label }}" class="form-label">
+                                Meeting Frequency
+                            </label>
+                            {{ form.meeting_frequency }}
+                            {% if form.meeting_frequency.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.meeting_frequency.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.social_fund_balance.id_for_label }}" class="form-label">
+                                Social Fund Balance
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.social_fund_balance }}
+                            </div>
+                            {% if form.social_fund_balance.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.social_fund_balance.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.group_guarantee_limit.id_for_label }}" class="form-label">
+                                Group Guarantee Limit
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.group_guarantee_limit }}
+                            </div>
+                            {% if form.group_guarantee_limit.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.group_guarantee_limit.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            Description
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-actions">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#createGroupForm">
+                                <i class='bx bx-x'></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class='bx bx-save'></i> Create Group
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Groups List -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class='bx bx-group'></i> Existing Groups
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if groups %}
+        <div class="table-responsive">
+            <table class="table table-hover data-table">
+                <thead>
+                    <tr>
+                        <th>Group Name</th>
+                        {% if accessible_saccos|length > 1 %}
+                        <th>Sacco</th>
+                        {% endif %}
+                        <th>Description</th>
+                        <th>Members</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in groups %}
+                    <tr>
+                        <td>
+                            <strong>{{ group.name }}</strong>
+                        </td>
+                        {% if accessible_saccos|length > 1 %}
+                        <td>{{ group.sacco.name|default:"N/A" }}</td>
+                        {% endif %}
+                        <td>{{ group.description|truncatechars:50|default:"No description" }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ group.members.count }}</span>
+                        </td>
+                        <td>{{ group.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'view_member_group' group.id %}" class="btn btn-outline-primary" title="View Group Details">
+                                    <i class='bx bx-show'></i>
+                                </a>
+                                <a href="{% url 'edit_member_group' group.id %}" class="btn btn-outline-success" title="Edit Group">
+                                    <i class='bx bx-edit'></i>
+                                </a>
+                                <form method="post" action="{% url 'delete_member_group' group.id %}" onsubmit="return confirm('Delete this group?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger" title="Delete Group">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class='bx bx-group' style="font-size: 3rem; color: #6c757d;"></i>
+            <p class="text-muted mt-2">No member groups found</p>
+            <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#createGroupForm">
+                <i class='bx bx-plus'></i> Create First Group
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}
+
