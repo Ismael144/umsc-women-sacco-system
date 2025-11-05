@@ -1,0 +1,4 @@
+# UMSC LOGO.png should be placed here
+# Copy the UMSC LOGO.png file from the root directory to this location
+# The file should be named: UMSC LOGO.png
+

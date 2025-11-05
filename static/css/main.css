@@ -1,0 +1,288 @@
+/* UMSC Sacco Management System - Main CSS */
+
+/* Professional Dashboard Styling - Reduce Green Colors */
+.card {
+    border: 1px solid #e3e6f0 !important;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+
+.card-header {
+    background-color: #f8f9fc !important;
+    border-bottom: 1px solid #e3e6f0 !important;
+    color: #5a5c69 !important;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%) !important;
+    border: 1px solid #e3e6f0 !important;
+}
+
+.stat-card .stat-number {
+    color: #5a5c69 !important;
+    font-weight: 700 !important;
+}
+
+/* Professional Color Scheme */
+.text-primary {
+    color: #4e73df !important;
+}
+
+.text-info {
+    color: #36b9cc !important;
+}
+
+.text-warning {
+    color: #f6c23e !important;
+}
+
+        .text-success {
+            color: #4a7c59 !important;
+        }
+
+.bg-primary {
+    background-color: #4e73df !important;
+}
+
+.bg-info {
+    background-color: #36b9cc !important;
+}
+
+.bg-warning {
+    background-color: #f6c23e !important;
+}
+
+        .bg-success {
+            background-color: #4a7c59 !important;
+        }
+
+        /* Professional Button Styling */
+        .btn-primary {
+            background-color: #4a7c59 !important;
+            border-color: #4a7c59 !important;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a6b4a !important;
+            border-color: #3a6b4a !important;
+        }
+        
+        .btn-outline-primary {
+            color: #4a7c59 !important;
+            border-color: #4a7c59 !important;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #4a7c59 !important;
+            border-color: #4a7c59 !important;
+        }
+
+/* Sidebar Styling */
+.sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid #e9ecef !important;
+    width: 300px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 70px !important;
+    overflow-x: hidden !important;
+}
+
+.sidebar .nav-link {
+    color: #495057 !important;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 4px 12px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    position: relative;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.sidebar .nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #4a7c59, #3a6b4a) !important;
+    border-radius: 0 2px 2px 0;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    color: #2c3e50 !important;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.sidebar .nav-link:hover::before {
+    transform: scaleY(1);
+    background: #4a7c59 !important;
+}
+
+.sidebar .nav-link.active {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    color: #2c3e50 !important;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 3px solid #4a7c59;
+}
+
+.sidebar .nav-link.active::before {
+    transform: scaleY(1);
+    background: linear-gradient(135deg, #4a7c59, #3a6b4a) !important;
+}
+
+/* Sidebar Logo */
+.sidebar-logo {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 20px;
+    background: transparent;
+}
+
+.logo-icon {
+    width: 90px;
+    height: 90px;
+    background: transparent;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    box-shadow: none;
+    border: none;
+}
+
+.logo-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Main Content Styling */
+.main-content {
+    margin-left: 300px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed + .main-content {
+    margin-left: 70px;
+}
+
+/* Navbar Styling */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 300px;
+    right: 0;
+    z-index: 999;
+    background: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+    transition: left 0.3s ease;
+}
+
+.sidebar.collapsed ~ .navbar {
+    left: 70px;
+}
+
+/* Collapse Button */
+.sidebar-collapse-btn {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #495057;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sidebar-collapse-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.sidebar.collapsed .sidebar-collapse-btn {
+    right: 8px;
+    top: 8px;
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 280px !important;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+    
+    .navbar {
+        left: 0;
+    }
+}
+
+/* DataTables Mobile Enhancement */
+@media (max-width: 768px) {
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        display: none !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate {
+        display: block !important;
+        text-align: center !important;
+        margin-top: 10px !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        display: inline-block !important;
+        margin: 0 2px !important;
+        padding: 5px 10px !important;
+        background: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 4px !important;
+        color: #495057 !important;
+        text-decoration: none !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #e9ecef !important;
+        color: #495057 !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #007bff !important;
+        color: white !important;
+        border-color: #007bff !important;
+    }
+}
